@@ -1,0 +1,303 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e5]:
+      - link "Logo" [ref=e6] [cursor=pointer]:
+        - /url: /en/
+        - img "Logo" [ref=e7]
+      - generic [ref=e9]:
+        - generic [ref=e12]:
+          - img [ref=e14]
+          - searchbox "Search" [ref=e16]
+        - button "Sort" [ref=e17] [cursor=pointer]:
+          - img [ref=e19]
+      - generic [ref=e23]:
+        - button [ref=e26] [cursor=pointer]:
+          - img [ref=e29]
+        - button [ref=e33] [cursor=pointer]:
+          - img [ref=e35]
+        - button [ref=e39] [cursor=pointer]:
+          - img [ref=e41]
+    - generic [ref=e44]:
+      - complementary [ref=e45]:
+        - navigation [ref=e46]:
+          - list [ref=e47]:
+            - listitem [ref=e48]:
+              - link "Home" [ref=e49] [cursor=pointer]:
+                - /url: /
+                - img [ref=e51]
+                - generic [ref=e53]: Home
+            - listitem [ref=e54]:
+              - link "Explore" [ref=e55] [cursor=pointer]:
+                - /url: /explore
+                - img [ref=e57]
+                - generic [ref=e59]: Explore
+            - listitem [ref=e60] [cursor=pointer]:
+              - generic [ref=e61]:
+                - img [ref=e63]
+                - generic [ref=e65]: Trade
+              - list [ref=e294]:
+                - listitem [ref=e295]:
+                  - button "common:header.trade-nav.buy.title Buy Buy crypto instantly with low fees" [ref=e296]:
+                    - img "common:header.trade-nav.buy.title" [ref=e297]
+                    - generic [ref=e298]:
+                      - generic [ref=e299]: Buy
+                      - generic [ref=e300]: Buy crypto instantly with low fees
+                - listitem [ref=e301]:
+                  - button "common:header.trade-nav.sell.title Sell Sell crypto securely with lightning-fast execution" [ref=e302]:
+                    - img "common:header.trade-nav.sell.title" [ref=e303]
+                    - generic [ref=e304]:
+                      - generic [ref=e305]: Sell
+                      - generic [ref=e306]: Sell crypto securely with lightning-fast execution
+                - listitem [ref=e307]:
+                  - button "common:header.trade-nav.convert.title Convert Swap crypto pairs seamlessly" [ref=e308]:
+                    - img "common:header.trade-nav.convert.title" [ref=e309]
+                    - generic [ref=e310]:
+                      - generic [ref=e311]: Convert
+                      - generic [ref=e312]: Swap crypto pairs seamlessly
+                - listitem [ref=e313]:
+                  - button "common:header.trade-nav.deposit.title Deposit Fund your account easily with fiat or crypto" [ref=e314]:
+                    - img "common:header.trade-nav.deposit.title" [ref=e315]
+                    - generic [ref=e316]:
+                      - generic [ref=e317]: Deposit
+                      - generic [ref=e318]: Fund your account easily with fiat or crypto
+                - listitem [ref=e319]:
+                  - button "common:header.trade-nav.withdrawal.title Withdrawals Cash out crypto with ease." [ref=e320]:
+                    - img "common:header.trade-nav.withdrawal.title" [ref=e321]
+                    - generic [ref=e322]:
+                      - generic [ref=e323]: Withdrawals
+                      - generic [ref=e324]: Cash out crypto with ease.
+            - listitem [ref=e66]:
+              - button "MBG+" [ref=e67] [cursor=pointer]:
+                - img [ref=e69]
+                - text: MBG+
+            - listitem [ref=e71]:
+              - button "VIP" [ref=e72] [cursor=pointer]:
+                - img [ref=e74]
+                - text: VIP
+            - listitem [ref=e76]:
+              - button "Wallet" [ref=e77] [cursor=pointer]:
+                - img [ref=e79]
+                - text: Wallet
+      - generic [ref=e326]:
+        - generic [ref=e327]:
+          - heading "All Cryptocurrencies" [level=3] [ref=e329]
+          - paragraph [ref=e330]: Explore all of the assets on mb.io
+        - generic [ref=e331]:
+          - table [ref=e334]:
+            - rowgroup [ref=e335]:
+              - row "Asset Price 24h Change High Low 24h Change" [ref=e336]:
+                - columnheader "Asset" [ref=e337] [cursor=pointer]:
+                  - generic [ref=e338]:
+                    - text: Asset
+                    - img [ref=e340]
+                - columnheader "Price" [ref=e342] [cursor=pointer]:
+                  - generic [ref=e343]:
+                    - text: Price
+                    - img [ref=e345]
+                - columnheader "24h Change" [ref=e347] [cursor=pointer]:
+                  - generic [ref=e348]:
+                    - text: 24h Change
+                    - img [ref=e350]
+                - columnheader "High" [ref=e352] [cursor=pointer]:
+                  - generic [ref=e353]:
+                    - text: High
+                    - img [ref=e355]
+                - columnheader "Low" [ref=e357] [cursor=pointer]:
+                  - generic [ref=e358]:
+                    - text: Low
+                    - img [ref=e360]
+                - columnheader "24h Change" [ref=e362]:
+                  - generic [ref=e363]: 24h Change
+            - rowgroup [ref=e364]:
+              - row "ENA ENA 0.0759 $ 2.93% 0.0773 $ 0.0737 $" [ref=e365] [cursor=pointer]:
+                - cell "ENA ENA" [ref=e366]:
+                  - generic [ref=e367]:
+                    - img "ENA" [ref=e368]
+                    - generic [ref=e370]: ENA
+                - cell "0.0759 $" [ref=e371]:
+                  - generic [ref=e372]: 0.0759 $
+                - cell "2.93%" [ref=e373]:
+                  - generic [ref=e374]:
+                    - img [ref=e376]
+                    - text: 2.93%
+                - cell "0.0773 $" [ref=e378]:
+                  - generic [ref=e379]: 0.0773 $
+                - cell "0.0737 $" [ref=e380]:
+                  - generic [ref=e381]: 0.0737 $
+                - cell [ref=e382]:
+                  - region [ref=e385]:
+                    - img [ref=e386]
+              - row "SKY SKY 0.0567 $ 5.10% 0.0585 $ 0.0543 $" [ref=e393] [cursor=pointer]:
+                - cell "SKY SKY" [ref=e394]:
+                  - generic [ref=e395]:
+                    - img "SKY" [ref=e396]
+                    - generic [ref=e398]: SKY
+                - cell "0.0567 $" [ref=e399]:
+                  - generic [ref=e400]: 0.0567 $
+                - cell "5.10%" [ref=e401]:
+                  - generic [ref=e402]:
+                    - img [ref=e404]
+                    - text: 5.10%
+                - cell "0.0585 $" [ref=e406]:
+                  - generic [ref=e407]: 0.0585 $
+                - cell "0.0543 $" [ref=e408]:
+                  - generic [ref=e409]: 0.0543 $
+                - cell [ref=e410]:
+                  - region [ref=e413]:
+                    - img [ref=e414]
+              - row "GRT GRT 0.0176 $ 0.11% 0.0177 $ 0.0173 $" [ref=e421] [cursor=pointer]:
+                - cell "GRT GRT" [ref=e422]:
+                  - generic [ref=e423]:
+                    - img "GRT" [ref=e424]
+                    - generic [ref=e426]: GRT
+                - cell "0.0176 $" [ref=e427]:
+                  - generic [ref=e428]: 0.0176 $
+                - cell "0.11%" [ref=e429]:
+                  - generic [ref=e430]:
+                    - img [ref=e432]
+                    - text: 0.11%
+                - cell "0.0177 $" [ref=e434]:
+                  - generic [ref=e435]: 0.0177 $
+                - cell "0.0173 $" [ref=e436]:
+                  - generic [ref=e437]: 0.0173 $
+                - cell [ref=e438]:
+                  - region [ref=e441]:
+                    - img [ref=e442]
+              - row "CRV CRV 0.201 $ 1.66% 0.205 $ 0.199 $" [ref=e449] [cursor=pointer]:
+                - cell "CRV CRV" [ref=e450]:
+                  - generic [ref=e451]:
+                    - img "CRV" [ref=e452]
+                    - generic [ref=e454]: CRV
+                - cell "0.201 $" [ref=e455]:
+                  - generic [ref=e456]: 0.201 $
+                - cell "1.66%" [ref=e457]:
+                  - generic [ref=e458]:
+                    - img [ref=e460]
+                    - text: 1.66%
+                - cell "0.205 $" [ref=e462]:
+                  - generic [ref=e463]: 0.205 $
+                - cell "0.199 $" [ref=e464]:
+                  - generic [ref=e465]: 0.199 $
+                - cell [ref=e466]:
+                  - region [ref=e469]:
+                    - img [ref=e470]
+              - row "LIT LIT 2.43 $ 3.35% 2.53 $ 2.25 $" [ref=e477] [cursor=pointer]:
+                - cell "LIT LIT" [ref=e478]:
+                  - generic [ref=e479]:
+                    - img "LIT" [ref=e480]
+                    - generic [ref=e482]: LIT
+                - cell "2.43 $" [ref=e483]:
+                  - generic [ref=e484]: 2.43 $
+                - cell "3.35%" [ref=e485]:
+                  - generic [ref=e486]:
+                    - img [ref=e488]
+                    - text: 3.35%
+                - cell "2.53 $" [ref=e490]:
+                  - generic [ref=e491]: 2.53 $
+                - cell "2.25 $" [ref=e492]:
+                  - generic [ref=e493]: 2.25 $
+                - cell [ref=e494]:
+                  - region [ref=e497]:
+                    - img [ref=e498]
+              - row "MORPHO MORPHO 2.08 $ 0.49% 2.09 $ 2.01 $" [ref=e505] [cursor=pointer]:
+                - cell "MORPHO MORPHO" [ref=e506]:
+                  - generic [ref=e507]:
+                    - img "MORPHO" [ref=e508]
+                    - generic [ref=e510]: MORPHO
+                - cell "2.08 $" [ref=e511]:
+                  - generic [ref=e512]: 2.08 $
+                - cell "0.49%" [ref=e513]:
+                  - generic [ref=e514]:
+                    - img [ref=e516]
+                    - text: 0.49%
+                - cell "2.09 $" [ref=e518]:
+                  - generic [ref=e519]: 2.09 $
+                - cell "2.01 $" [ref=e520]:
+                  - generic [ref=e521]: 2.01 $
+                - cell [ref=e522]:
+                  - region [ref=e525]:
+                    - img [ref=e526]
+              - row "RLUSD RLUSD 1.000 $ 0.00% 1.000 $ 1.000 $" [ref=e533] [cursor=pointer]:
+                - cell "RLUSD RLUSD" [ref=e534]:
+                  - generic [ref=e535]:
+                    - img "RLUSD" [ref=e536]
+                    - generic [ref=e538]: RLUSD
+                - cell "1.000 $" [ref=e539]:
+                  - generic [ref=e540]: 1.000 $
+                - cell "0.00%" [ref=e541]:
+                  - generic [ref=e542]:
+                    - img [ref=e544]
+                    - text: 0.00%
+                - cell "1.000 $" [ref=e546]:
+                  - generic [ref=e547]: 1.000 $
+                - cell "1.000 $" [ref=e548]:
+                  - generic [ref=e549]: 1.000 $
+                - cell [ref=e550]:
+                  - region [ref=e553]:
+                    - img [ref=e554]
+              - row "BTC BTC Bitcoin 62,702.75 $ 1.37% 63,187.94 $ 61,637.95 $" [ref=e561] [cursor=pointer]:
+                - cell "BTC BTC Bitcoin" [ref=e562]:
+                  - generic [ref=e563]:
+                    - img "BTC" [ref=e564]
+                    - generic [ref=e565]:
+                      - generic [ref=e566]: BTC
+                      - generic [ref=e567]: Bitcoin
+                - cell "62,702.75 $" [ref=e568]:
+                  - generic [ref=e569]: 62,702.75 $
+                - cell "1.37%" [ref=e570]:
+                  - generic [ref=e571]:
+                    - img [ref=e573]
+                    - text: 1.37%
+                - cell "63,187.94 $" [ref=e575]:
+                  - generic [ref=e576]: 63,187.94 $
+                - cell "61,637.95 $" [ref=e577]:
+                  - generic [ref=e578]: 61,637.95 $
+                - cell [ref=e579]:
+                  - region [ref=e582]:
+                    - img [ref=e583]
+              - row "ETH ETH Ethereum 1,738.95 $ 0.16% 1,760.35 $ 1,720.45 $" [ref=e590] [cursor=pointer]:
+                - cell "ETH ETH Ethereum" [ref=e591]:
+                  - generic [ref=e592]:
+                    - img "ETH" [ref=e593]
+                    - generic [ref=e594]:
+                      - generic [ref=e595]: ETH
+                      - generic [ref=e596]: Ethereum
+                - cell "1,738.95 $" [ref=e597]:
+                  - generic [ref=e598]: 1,738.95 $
+                - cell "0.16%" [ref=e599]:
+                  - generic [ref=e600]:
+                    - img [ref=e602]
+                    - text: 0.16%
+                - cell "1,760.35 $" [ref=e604]:
+                  - generic [ref=e605]: 1,760.35 $
+                - cell "1,720.45 $" [ref=e606]:
+                  - generic [ref=e607]: 1,720.45 $
+                - cell [ref=e608]:
+                  - region [ref=e611]:
+                    - img [ref=e612]
+              - row "USDT USDT Tether 0.999 $ 0.02% 0.999 $ 0.999 $" [ref=e619] [cursor=pointer]:
+                - cell "USDT USDT Tether" [ref=e620]:
+                  - generic [ref=e621]:
+                    - img "USDT" [ref=e622]
+                    - generic [ref=e623]:
+                      - generic [ref=e624]: USDT
+                      - generic [ref=e625]: Tether
+                - cell "0.999 $" [ref=e626]:
+                  - generic [ref=e627]: 0.999 $
+                - cell "0.02%" [ref=e628]:
+                  - generic [ref=e629]:
+                    - img [ref=e631]
+                    - text: 0.02%
+                - cell "0.999 $" [ref=e633]:
+                  - generic [ref=e634]: 0.999 $
+                - cell "0.999 $" [ref=e635]:
+                  - generic [ref=e636]: 0.999 $
+                - cell [ref=e637]:
+                  - region [ref=e640]:
+                    - img [ref=e641]
+          - button "Show More" [ref=e649] [cursor=pointer]:
+            - generic [ref=e650]: Show More
+            - img [ref=e652]
+  - alert [ref=e226]: Trade Crypto | All Trading Pairs | mb.io
+  - iframe [ref=e227]:
+    

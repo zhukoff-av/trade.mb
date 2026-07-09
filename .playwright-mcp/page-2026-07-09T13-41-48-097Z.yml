@@ -1,0 +1,157 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e5]:
+      - link "Logo" [ref=e6] [cursor=pointer]:
+        - /url: /en/
+        - img "Logo" [ref=e7]
+      - generic [ref=e9]:
+        - generic [ref=e12]:
+          - img [ref=e14]
+          - searchbox "Search" [ref=e16]
+        - button "Sort" [ref=e17] [cursor=pointer]:
+          - img [ref=e19]
+      - generic [ref=e23]:
+        - button [ref=e26] [cursor=pointer]:
+          - img [ref=e29]
+        - button [ref=e33] [cursor=pointer]:
+          - img [ref=e35]
+        - button [ref=e39] [cursor=pointer]:
+          - img [ref=e41]
+    - generic [ref=e44]:
+      - complementary [ref=e45]:
+        - navigation [ref=e46]:
+          - list [ref=e47]:
+            - listitem [ref=e48]:
+              - link "Home" [ref=e49] [cursor=pointer]:
+                - /url: /
+                - img [ref=e51]
+                - generic [ref=e53]: Home
+            - listitem [ref=e54]:
+              - link "Explore" [ref=e55] [cursor=pointer]:
+                - /url: /explore
+                - img [ref=e57]
+                - generic [ref=e59]: Explore
+            - listitem [ref=e60] [cursor=pointer]:
+              - generic [ref=e61]:
+                - img [ref=e63]
+                - generic [ref=e65]: Trade
+            - listitem [ref=e66]:
+              - button "MBG+" [ref=e67] [cursor=pointer]:
+                - img [ref=e69]
+                - text: MBG+
+            - listitem [ref=e71]:
+              - button "VIP" [ref=e72] [cursor=pointer]:
+                - img [ref=e74]
+                - text: VIP
+            - listitem [ref=e76]:
+              - button "Wallet" [ref=e77] [cursor=pointer]:
+                - img [ref=e79]
+                - text: Wallet
+      - generic [ref=e84]:
+        - generic [ref=e85]:
+          - generic [ref=e86]:
+            - generic [ref=e87]:
+              - generic [ref=e88]:
+                - generic [ref=e89]:
+                  - paragraph [ref=e90]: Portfolio Value
+                  - img [ref=e92] [cursor=pointer]
+                - generic [ref=e95]:
+                  - heading "0.00" [level=3] [ref=e96]
+                  - generic [ref=e97]: USD
+                  - button [ref=e99] [cursor=pointer]:
+                    - img [ref=e101]
+                - generic [ref=e103]:
+                  - generic [ref=e104]: "0.00"
+                  - generic [ref=e105]: USD
+                  - generic [ref=e106]: (0.00%)
+              - region [ref=e109]:
+                - generic [ref=e111]:
+                  - group [ref=e112]:
+                    - button "1D" [ref=e113] [cursor=pointer]
+                  - group [ref=e114]:
+                    - button "7D" [ref=e115] [cursor=pointer]
+                  - group [ref=e116]:
+                    - button "1M" [ref=e117] [cursor=pointer]
+                  - group [ref=e118]:
+                    - button "6M" [ref=e119] [cursor=pointer]
+                  - group [ref=e120]:
+                    - button "1Y" [ref=e121] [cursor=pointer]
+                  - group [ref=e122]:
+                    - button "All" [ref=e123] [cursor=pointer]
+            - region [ref=e127]:
+              - img [ref=e128]
+          - generic [ref=e129]:
+            - generic [ref=e130]:
+              - heading "Today’s Top Crypto Prices" [level=3] [ref=e131]
+              - region [ref=e134]:
+                - generic [ref=e136]:
+                  - group [ref=e137]:
+                    - button "Watchlist" [ref=e138] [cursor=pointer]
+                  - group [ref=e139]:
+                    - button "Hot" [ref=e140] [cursor=pointer]
+                  - group [ref=e141]:
+                    - button "Gainers" [ref=e142] [cursor=pointer]
+                  - group [ref=e143]:
+                    - button "Losers" [ref=e144] [cursor=pointer]
+            - generic [ref=e147]:
+              - table [ref=e148]:
+                - rowgroup [ref=e149]:
+                  - row "Asset Price 24h Change High Low 24h Change" [ref=e150]:
+                    - columnheader "Asset" [ref=e151] [cursor=pointer]:
+                      - generic [ref=e152]:
+                        - text: Asset
+                        - img [ref=e154]
+                    - columnheader "Price" [ref=e156] [cursor=pointer]:
+                      - generic [ref=e157]:
+                        - text: Price
+                        - img [ref=e159]
+                    - columnheader "24h Change" [ref=e161] [cursor=pointer]:
+                      - generic [ref=e162]:
+                        - text: 24h Change
+                        - img [ref=e164]
+                    - columnheader "High" [ref=e166] [cursor=pointer]:
+                      - generic [ref=e167]:
+                        - text: High
+                        - img [ref=e169]
+                    - columnheader "Low" [ref=e171] [cursor=pointer]:
+                      - generic [ref=e172]:
+                        - text: Low
+                        - img [ref=e174]
+                    - columnheader "24h Change" [ref=e176]:
+                      - generic [ref=e177]: 24h Change
+                - rowgroup
+              - generic [ref=e179]:
+                - img "Your watchlist is empty" [ref=e182]
+                - generic [ref=e183]: Your watchlist is empty
+                - generic [ref=e184]: Star assets to add and remove them from your watchlist
+            - button "Manage Watchlist" [ref=e187] [cursor=pointer]:
+              - text: Manage Watchlist
+              - img [ref=e189]
+        - generic [ref=e192]:
+          - generic [ref=e194]:
+            - generic [ref=e195]:
+              - heading "Download mb.io App" [level=2] [ref=e196]
+              - paragraph [ref=e197]: Stay updated on recent prices using the mobile app.
+            - generic [ref=e198]:
+              - img "QR Code" [ref=e199]
+              - generic [ref=e200]:
+                - paragraph [ref=e201]: Scan now to download
+                - paragraph [ref=e202]: iOS & Android
+          - link "MBG MBG MultiBank Group 0.149 $ 8.28%" [ref=e204] [cursor=pointer]:
+            - /url: /price/MBG
+            - generic [ref=e205]:
+              - generic [ref=e206]:
+                - img "MBG" [ref=e207]
+                - generic [ref=e208]:
+                  - generic [ref=e209]: MBG
+                  - generic [ref=e210]: MultiBank Group
+              - generic [ref=e211]:
+                - generic [ref=e212]: 0.149 $
+                - generic [ref=e213]:
+                  - img [ref=e215]
+                  - text: 8.28%
+            - region [ref=e219]:
+              - img [ref=e220]
+  - alert [ref=e226]
+  - iframe [ref=e227]:
+    
