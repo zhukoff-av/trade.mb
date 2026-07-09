@@ -1,5 +1,12 @@
 node_modules/
 test-results/
 playwright-report/
+.auth/
+playwright/.auth/
+*.auth.json
 .github/agents/
 .github/prompts/
+.claude/
+.env
+AGENTS.md
+CLAUDE.md
