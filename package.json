@@ -1,0 +1,32 @@
+{
+  "name": "Playwright",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "packageManager": "bun@1.3.14",
+  "scripts": {
+    "test": "playwright test",
+    "codex:issue": "scripts/codex-issue.sh",
+    "example": "bunx playwright test",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "plan-coverage": "node scripts/plan-coverage.js",
+    "report": "bunx playwright show-report",
+    "test-ui-mode": "bunx playwright test --ui",
+    "test-chromium": "bunx playwright test --project chromium --headed",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "1.60.0",
+    "@types/node": "^22.8.6",
+    "eslint": "^9.14.0",
+    "eslint-plugin-playwright": "^2.0.1",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.13.0"
+  }
+}
