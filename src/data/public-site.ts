@@ -9,31 +9,37 @@ export const mainNavigationItems = [
   {
     name: 'Explore',
     href: /^\/en(?:-[A-Z]{2})?\/explore$/,
+    requestUrl: '/en/explore',
     finalUrl: /^https:\/\/mb\.io\/en(?:-[A-Z]{2})?\/explore$/,
   },
   {
     name: 'Features',
     href: /^\/en(?:-[A-Z]{2})?\/features$/,
+    requestUrl: '/en/features',
     finalUrl: /^https:\/\/mb\.io\/en(?:-[A-Z]{2})?\/features$/,
   },
   {
     name: 'OTC Desk',
     href: /^\/en(?:-[A-Z]{2})?\/features\/otc-desk$/,
+    requestUrl: '/en/features/otc-desk',
     finalUrl: /^https:\/\/mb\.io\/en(?:-[A-Z]{2})?\/features\/otc-desk$/,
   },
   {
     name: 'Company',
     href: /^\/en(?:-[A-Z]{2})?\/company$/,
+    requestUrl: '/en/company',
     finalUrl: /^https:\/\/mb\.io\/en(?:-[A-Z]{2})?\/company$/,
   },
   {
     name: 'Support',
     href: /^\/en(?:-[A-Z]{2})?\/support$/,
+    requestUrl: '/en/support',
     finalUrl: /^https:\/\/mb\.io\/en(?:-[A-Z]{2})?\/support$/,
   },
   {
     name: '$MBG',
     href: /^https:\/\/token\.multibankgroup\.com\/en\/?$/,
+    requestUrl: 'https://token.multibankgroup.com/en',
     finalUrl: /^https:\/\/token\.mb\.io\/en(?:-[A-Z]{2})?\/?$/,
   },
 ] as const;
@@ -42,11 +48,13 @@ export const accountNavigationItems = [
   {
     name: 'Sign in',
     href: /^https:\/\/trade\.mb\.io\/login\/?$/,
+    requestUrl: 'https://trade.mb.io/login',
     finalUrl: /^https:\/\/trade\.mb\.io\/login\/?$/,
   },
   {
     name: 'Sign up',
     href: /^https:\/\/trade\.mb\.io\/register\/?$/,
+    requestUrl: 'https://trade.mb.io/register',
     finalUrl: /^https:\/\/trade\.mb\.io\/register\/?$/,
   },
 ] as const;
@@ -57,6 +65,8 @@ export const desktopViewports = [
 ] as const;
 
 export const expectedMarketHeadings = ['Top Gainers', 'Trending Now', 'Top Losers'] as const;
+
+export const appDownloadUrl = 'https://mbio.go.link/6OW91';
 
 export const marketingContent = {
   khabib: {

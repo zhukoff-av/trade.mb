@@ -2,10 +2,10 @@
 // plan-id: TRADEMB-WEBUI-007
 
 import { expect, test } from '../../../src/fixtures/ui';
-import { appRedirectCases } from '../../../src/data/public-site';
+import { appDownloadUrl, appRedirectCases } from '../../../src/data/public-site';
 
 test.describe('1.7 App download link resolves', () => {
-  test('App download link resolves for iOS and Android', async ({ homePage, linkChecker }) => {
+  test('App download link renders in the hero section', async ({ homePage }) => {
     await test.step('Open the public English home page', async () => {
       await homePage.open();
     });
@@ -14,15 +14,14 @@ test.describe('1.7 App download link resolves', () => {
 
     await test.step('Locate the app download link inside the hero section', async () => {
       await expect(downloadLink).toBeVisible();
-      await expect(downloadLink).toHaveAttribute('href', /^https:\/\/mbio\.go\.link\//);
+      await expect(downloadLink).toHaveAttribute('href', appDownloadUrl);
     });
+  });
 
-    const href = await downloadLink.getAttribute('href');
-    expect(href).not.toBeNull();
-
+  test('@api App download smart link resolves for iOS and Android', async ({ linkChecker }) => {
     for (const redirectCase of appRedirectCases) {
       await test.step(`Verify the ${redirectCase.platform} store redirect`, async () => {
-        const result = await linkChecker.check(String(href), {
+        const result = await linkChecker.check(appDownloadUrl, {
           maxRedirects: 0,
           userAgent: redirectCase.userAgent,
         });

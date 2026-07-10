@@ -5,33 +5,31 @@ import { expect, test } from '../../../src/fixtures/ui';
 import { accountNavigationItems, mainNavigationItems } from '../../../src/data/public-site';
 
 test.describe('1.2 Public navigation links resolve correctly', () => {
-  test('Public navigation links resolve correctly', async ({ header, homePage, linkChecker }) => {
+  test('Public navigation links point to the correct destinations', async ({
+    header,
+    homePage,
+  }) => {
     await test.step('Open the public English home page', async () => {
       await homePage.open();
     });
 
     for (const item of mainNavigationItems) {
-      await test.step(`Validate ${item.name} destination`, async () => {
-        const link = header.desktopNavigationLink(item.name);
-        await expect(link).toHaveAttribute('href', item.href);
-
-        const href = await link.getAttribute('href');
-        expect(href).not.toBeNull();
-        const result = await linkChecker.check(String(href), { maxRedirects: 5 });
-
-        expect(result.status, `${item.name} returned ${result.status}`).toBeLessThan(400);
-        expect(result.finalUrl).toMatch(item.finalUrl);
+      await test.step(`Check the rendered ${item.name} link`, async () => {
+        await expect(header.desktopNavigationLink(item.name)).toHaveAttribute('href', item.href);
       });
     }
 
     for (const item of accountNavigationItems) {
-      await test.step(`Validate ${item.name} destination`, async () => {
-        const link = header.desktopAccountLink(item.name);
-        await expect(link).toHaveAttribute('href', item.href);
+      await test.step(`Check the rendered ${item.name} link`, async () => {
+        await expect(header.desktopAccountLink(item.name)).toHaveAttribute('href', item.href);
+      });
+    }
+  });
 
-        const href = await link.getAttribute('href');
-        expect(href).not.toBeNull();
-        const result = await linkChecker.check(String(href), { maxRedirects: 5 });
+  test('@api Public navigation destinations resolve', async ({ linkChecker }) => {
+    for (const item of [...mainNavigationItems, ...accountNavigationItems]) {
+      await test.step(`Request the ${item.name} destination`, async () => {
+        const result = await linkChecker.check(item.requestUrl, { maxRedirects: 5 });
 
         expect(result.status, `${item.name} returned ${result.status}`).toBeLessThan(400);
         expect(result.finalUrl).toMatch(item.finalUrl);

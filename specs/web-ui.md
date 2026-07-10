@@ -27,8 +27,8 @@
 **Steps:**
 
 1. Open the public English home page.
-2. Read all six Main navigation destinations and both account destinations.
-3. Request every destination while following normal HTTP redirects.
+2. Verify all six Main navigation destinations and both account destinations in the browser.
+3. Request every destination from the browserless API project while following normal HTTP redirects.
 
 **Expected:**
 
@@ -118,8 +118,8 @@
 **Steps:**
 
 1. Open the public English home page.
-2. Locate Download the app inside the hero section.
-3. Request the smart link as iOS and Android clients without following the first redirect.
+2. Locate Download the app inside the hero section and verify its exact smart-link destination.
+3. Request the smart link from the browserless API project as iOS and Android clients without following the first redirect.
 
 **Expected:**
 

@@ -19,9 +19,18 @@ export default defineConfig({
     {
       name: 'ui',
       testMatch: 'ui/**/*.spec.ts',
+      grepInvert: /@api/,
       use: {
         ...devices['Desktop Chrome'],
       },
+    },
+    {
+      name: 'api',
+      testMatch: [
+        'ui/web-ui/app-download-link.spec.ts',
+        'ui/web-ui/navigation-links-resolve.spec.ts',
+      ],
+      grep: /@api/,
     },
   ],
 });

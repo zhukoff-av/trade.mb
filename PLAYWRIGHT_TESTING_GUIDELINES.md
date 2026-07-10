@@ -67,7 +67,17 @@ changing values are not.
 Locale redirects such as `/en` to `/en-AE` are supported. Match the allowed locale shape while still
 requiring the exact feature path.
 
-## 6. Validate links without testing the internet
+## 6. Separate execution levels
+
+Use the UI project when rendered browser behavior is the subject. Use an `@api` test when the
+contract can be verified through Playwright's request context without a browser, such as HTTP
+status, redirect, and final-destination checks.
+
+When one Plan ID spans both concerns, keep both tests in its declared spec file. The `ui` project
+excludes `@api` tests and the `api` project selects them, preserving a single automation mapping for
+the Plan ID. API tests must not request `page`, page objects, or browser-only fixtures.
+
+## 7. Validate links without testing the internet
 
 For mb.io-owned navigation:
 
@@ -80,7 +90,7 @@ For a third-party store, assert the first-party smart link's redirect target ins
 the third party's page content or availability. Use `maxRedirects: 0` when the redirect itself is the
 contract. Do not submit sign-in, registration, or trading forms from public-link tests.
 
-## 7. Wait for state, never time
+## 8. Wait for state, never time
 
 Do not use `waitForTimeout`. Navigation uses `domcontentloaded`; subsequent actions and assertions
 wait for visible UI state, a URL, a response, or another meaningful product outcome.
@@ -88,7 +98,7 @@ wait for visible UI state, a URL, a response, or another meaningful product outc
 Do not solve flakes by increasing timeouts or retries. Local runs have zero retries so flakes are
 visible immediately. CI retries collect a trace on the first retry and use one worker for stability.
 
-## 8. Keep tests isolated and diagnostic
+## 9. Keep tests isolated and diagnostic
 
 - Each test receives a fresh browser context.
 - Tests must run independently and in parallel locally.
@@ -97,7 +107,7 @@ visible immediately. CI retries collect a trace on the first retry and use one w
 - Keep secrets in `.env`; never commit `.env`, authentication state, reports, traces, or local tooling
   configuration.
 
-## 9. Review and evidence checklist
+## 10. Review and evidence checklist
 
 Before calling work complete, verify:
 
@@ -108,4 +118,4 @@ Before calling work complete, verify:
 - request checks have clear ownership and destination expectations;
 - page objects contain locators/actions, while specs contain assertions;
 - no AI-agent, MCP, authentication, report, trace, or generated inspection files are tracked;
-- `plan-coverage`, formatting, lint, typecheck, and the affected Playwright tests all pass.
+- `plan-coverage`, formatting, zero-warning lint, typecheck, API tests, and UI tests all pass.
