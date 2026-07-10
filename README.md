@@ -1,5 +1,9 @@
 # trade.mb.io Playwright tests
 
+[![Tests](https://github.com/zhukoff-av/trade.mb/actions/workflows/playwright.yml/badge.svg?branch=main&label=tests)](https://github.com/zhukoff-av/trade.mb/actions/workflows/playwright.yml)
+[![Maintainability](https://img.shields.io/codefactor/grade/github/zhukoff-av/trade.mb/main?label=maintainability)](https://www.codefactor.io/repository/github/zhukoff-av/trade.mb)
+[![Language](https://img.shields.io/github/languages/top/zhukoff-av/trade.mb?label=language)](https://github.com/zhukoff-av/trade.mb)
+
 Playwright end-to-end coverage for the signed-out public experience at [mb.io](https://mb.io).
 The project uses Bun, TypeScript, and Playwright with Chromium. It contains tests and supporting
 test framework code only.
@@ -93,7 +97,8 @@ install
 - `api-tests` runs browserless navigation and app-store redirect contracts.
 - `ui-tests` installs Chromium and runs the complete browser suite.
 
-API and UI reports are uploaded separately when their job fails.
+API and UI results are merged into one `playwright-html-report` artifact. The `Playwright report`
+job also adds a run-time summary with totals, outcome, failures, and duration to each Actions run.
 
 Work is complete only when these commands pass:
 
