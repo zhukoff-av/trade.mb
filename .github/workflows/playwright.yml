@@ -103,12 +103,12 @@ jobs:
       - name: 🔌 Run browserless API and network contracts
         run: bun run test:api
 
-      - name: 📎 Upload API test report
-        if: failure()
+      - name: 📎 Upload API blob report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-api
-          path: playwright-report/
+          name: playwright-blob-api
+          path: blob-report/
           if-no-files-found: ignore
           retention-days: 7
 
@@ -150,11 +150,69 @@ jobs:
       - name: 🎭 Run Chromium UI tests
         run: bun run test:ui
 
-      - name: 📎 Upload UI test report
-        if: failure()
+      - name: 📎 Upload UI blob report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-ui
-          path: playwright-report/
+          name: playwright-blob-ui
+          path: blob-report/
           if-no-files-found: ignore
           retention-days: 7
+
+  report:
+    name: Playwright report
+    if: always()
+    needs: [api-tests, ui-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🥟 Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: 📦 Install report dependencies
+        run: bun install --frozen-lockfile
+
+      - name: 📥 Download Playwright blob reports
+        if: ${{ needs.api-tests.result == 'success' || needs.api-tests.result == 'failure' || needs.ui-tests.result == 'success' || needs.ui-tests.result == 'failure' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-blob-*
+          path: blob-reports
+          merge-multiple: true
+
+      - name: 🧩 Merge Playwright reports
+        id: merge-reports
+        shell: bash
+        run: |
+          if ! find blob-reports -type f -name '*.zip' -print -quit 2>/dev/null | grep -q .; then
+            echo 'available=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          bunx playwright merge-reports --reporter=html blob-reports
+          bunx playwright merge-reports --reporter=json blob-reports > playwright-results.json
+          echo 'available=true' >> "$GITHUB_OUTPUT"
+
+      - name: 📎 Upload merged HTML report
+        id: upload-report
+        if: ${{ always() && steps.merge-reports.outputs.available == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-html-report
+          path: playwright-report/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: 📝 Publish Playwright summary
+        if: always()
+        env:
+          API_TEST_RESULT: ${{ needs.api-tests.result }}
+          UI_TEST_RESULT: ${{ needs.ui-tests.result }}
+          HTML_REPORT_URL: ${{ steps.upload-report.outputs.artifact-url }}
+        run: node scripts/github-playwright-summary.js
