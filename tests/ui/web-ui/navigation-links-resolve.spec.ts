@@ -31,8 +31,8 @@ test.describe('1.2 Public navigation links resolve correctly', () => {
       await test.step(`Request the ${item.name} destination`, async () => {
         const result = await linkChecker.check(item.requestUrl, { maxRedirects: 5 });
 
-        expect(result.status, `${item.name} returned ${result.status}`).toBeLessThan(400);
-        expect(result.finalUrl).toMatch(item.finalUrl);
+        expect.soft(result.status, `${item.name} returned ${result.status}`).toBeLessThan(400);
+        expect.soft(result.finalUrl, `${item.name} final URL`).toMatch(item.finalUrl);
       });
     }
   });

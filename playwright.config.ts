@@ -28,10 +28,7 @@ export default defineConfig({
     },
     {
       name: 'api',
-      testMatch: [
-        'ui/web-ui/app-download-link.spec.ts',
-        'ui/web-ui/navigation-links-resolve.spec.ts',
-      ],
+      testMatch: 'ui/**/*.spec.ts',
       grep: /@api/,
     },
   ],

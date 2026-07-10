@@ -2,7 +2,11 @@
 // plan-id: TRADEMB-WEBUI-010
 
 import { expect, test } from '../../../src/fixtures/ui';
-import { accountNavigationItems, mainNavigationItems } from '../../../src/data/public-site';
+import {
+  accountNavigationItems,
+  horizontalOverflowTolerancePx,
+  mainNavigationItems,
+} from '../../../src/data/public-site';
 
 test.describe('1.10 Mobile navigation is usable', () => {
   test('Mobile navigation is usable', async ({ header, homePage, page }) => {
@@ -29,7 +33,7 @@ test.describe('1.10 Mobile navigation is usable', () => {
     await test.step('Confirm the mobile viewport has no horizontal overflow', async () => {
       await expect
         .poll(() => homePage.documentWidth())
-        .toBeLessThanOrEqual((await homePage.viewportWidth()) + 8);
+        .toBeLessThanOrEqual((await homePage.viewportWidth()) + horizontalOverflowTolerancePx);
     });
   });
 });

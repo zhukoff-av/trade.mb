@@ -44,17 +44,22 @@ export const mainNavigationItems = [
   },
 ] as const;
 
+export const gatedDestinations = {
+  login: 'https://trade.mb.io/login',
+  register: 'https://trade.mb.io/register',
+} as const;
+
 export const accountNavigationItems = [
   {
     name: 'Sign in',
     href: /^https:\/\/trade\.mb\.io\/login\/?$/,
-    requestUrl: 'https://trade.mb.io/login',
+    requestUrl: gatedDestinations.login,
     finalUrl: /^https:\/\/trade\.mb\.io\/login\/?$/,
   },
   {
     name: 'Sign up',
     href: /^https:\/\/trade\.mb\.io\/register\/?$/,
-    requestUrl: 'https://trade.mb.io/register',
+    requestUrl: gatedDestinations.register,
     finalUrl: /^https:\/\/trade\.mb\.io\/register\/?$/,
   },
 ] as const;
@@ -63,6 +68,9 @@ export const desktopViewports = [
   { name: 'standard desktop', width: 1280, height: 720 },
   { name: 'large desktop', width: 1440, height: 900 },
 ] as const;
+
+// Allows for a classic scrollbar's width before layout width counts as horizontal overflow.
+export const horizontalOverflowTolerancePx = 8;
 
 export const expectedMarketHeadings = ['Top Gainers', 'Trending Now', 'Top Losers'] as const;
 

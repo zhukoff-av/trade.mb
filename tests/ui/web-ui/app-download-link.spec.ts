@@ -26,9 +26,11 @@ test.describe('1.7 App download link resolves', () => {
           userAgent: redirectCase.userAgent,
         });
 
-        expect(result.status).toBeGreaterThanOrEqual(300);
-        expect(result.status).toBeLessThan(400);
-        expect(result.location).toMatch(redirectCase.location);
+        expect.soft(result.status, `${redirectCase.platform} status`).toBeGreaterThanOrEqual(300);
+        expect.soft(result.status, `${redirectCase.platform} status`).toBeLessThan(400);
+        expect
+          .soft(result.location, `${redirectCase.platform} location`)
+          .toMatch(redirectCase.location);
       });
     }
   });
