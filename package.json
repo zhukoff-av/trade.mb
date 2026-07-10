@@ -1,7 +1,7 @@
 {
   "name": "trade-mb-qa",
   "version": "1.0.0",
-  "description": "Playwright UI/API test automation for trade.mb.io with an AI agent workflow",
+  "description": "Playwright UI/API test automation for the public mb.io site with an AI agent workflow",
   "packageManager": "bun@1.3.14",
   "scripts": {
     "test": "playwright test",
@@ -10,7 +10,7 @@
     "test:headed": "playwright test --project=ui --headed",
     "test:ui-mode": "playwright test --ui",
     "auth:setup": "playwright test --config=playwright.auth-cdp.config.ts --project=auth-cdp",
-    "test:ui:auth": "AUTH_STATE_PATH=.auth/user.json playwright test --project=ui",
+    "test:ui:auth": "USE_AUTH_STATE=true AUTH_STATE_PATH=.auth/user.json playwright test --project=ui",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
