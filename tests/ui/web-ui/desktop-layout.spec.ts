@@ -2,7 +2,7 @@
 // plan-id: TRADEMB-WEBUI-003
 
 import { expect, test } from '../../../src/fixtures/ui';
-import { desktopViewports } from '../../../src/data/public-site';
+import { desktopViewports, horizontalOverflowTolerancePx } from '../../../src/data/public-site';
 
 test.describe('1.3 Desktop home layout is stable', () => {
   for (const viewport of desktopViewports) {
@@ -27,7 +27,7 @@ test.describe('1.3 Desktop home layout is stable', () => {
         await expect(homePage.openAccountLink()).toBeVisible();
         await expect
           .poll(() => homePage.documentWidth())
-          .toBeLessThanOrEqual((await homePage.viewportWidth()) + 8);
+          .toBeLessThanOrEqual((await homePage.viewportWidth()) + horizontalOverflowTolerancePx);
       });
     });
   }
