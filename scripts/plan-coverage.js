@@ -75,15 +75,21 @@ for (const duplicatePlanId of duplicatePlanIds) {
 
 for (const [planId, scenario] of scenarios) {
   if (!scenario.coverageLine.startsWith('**Coverage:**')) {
-    fail(`${toProjectPath(scenario.planFile)}:${scenario.line + 1} missing Coverage line for ${planId}`);
+    fail(
+      `${toProjectPath(scenario.planFile)}:${scenario.line + 1} missing Coverage line for ${planId}`,
+    );
   }
 
   if (!scenario.riskLine.startsWith('**Risk:**')) {
-    fail(`${toProjectPath(scenario.planFile)}:${scenario.line + 2} missing Risk line for ${planId}`);
+    fail(
+      `${toProjectPath(scenario.planFile)}:${scenario.line + 2} missing Risk line for ${planId}`,
+    );
   }
 
   if (!scenario.automationLine.startsWith('**Automation:**')) {
-    fail(`${toProjectPath(scenario.planFile)}:${scenario.line + 3} missing Automation line for ${planId}`);
+    fail(
+      `${toProjectPath(scenario.planFile)}:${scenario.line + 3} missing Automation line for ${planId}`,
+    );
   }
 }
 

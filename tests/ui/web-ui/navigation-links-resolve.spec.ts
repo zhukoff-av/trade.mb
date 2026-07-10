@@ -2,41 +2,40 @@
 // plan-id: TRADEMB-WEBUI-002
 
 import { expect, test } from '../../../src/fixtures/ui';
-import { publicNavItems } from '../../../src/data/public-site';
+import { accountNavigationItems, mainNavigationItems } from '../../../src/data/public-site';
 
 test.describe('1.2 Public navigation links resolve correctly', () => {
-  test('Public navigation links resolve correctly', async ({ linkChecker, publicSite }) => {
+  test('Public navigation links resolve correctly', async ({ header, homePage, linkChecker }) => {
     await test.step('Open the public English home page', async () => {
-      await publicSite.openHome();
+      await homePage.open();
     });
 
-    await test.step('Read each expected desktop navigation destination', async () => {
-      await expect(publicSite.navLink(publicNavItems.explore.name)).toHaveAttribute(
-        'href',
-        /\/en(?:-[A-Z]{2})?\/explore$/,
-      );
-      await expect(publicSite.navLink(publicNavItems.features.name)).toHaveAttribute(
-        'href',
-        /\/en(?:-[A-Z]{2})?\/features$/,
-      );
-      await expect(publicSite.navLink(publicNavItems.company.name)).toHaveAttribute(
-        'href',
-        /\/en(?:-[A-Z]{2})?\/company$/,
-      );
-    });
+    for (const item of mainNavigationItems) {
+      await test.step(`Validate ${item.name} destination`, async () => {
+        const link = header.desktopNavigationLink(item.name);
+        await expect(link).toHaveAttribute('href', item.href);
 
-    await test.step('Check that public links resolve successfully and gated links point to trade.mb.io', async () => {
-      await expect.poll(() => linkChecker.statusFor(publicNavItems.explore.path)).toBeLessThan(400);
-      await expect.poll(() => linkChecker.statusFor(publicNavItems.features.path)).toBeLessThan(400);
-      await expect.poll(() => linkChecker.statusFor(publicNavItems.company.path)).toBeLessThan(400);
-      await expect(publicSite.navLink(publicNavItems.signIn.name)).toHaveAttribute(
-        'href',
-        /trade\.mb\.io/,
-      );
-      await expect(publicSite.navLink(publicNavItems.signUp.name)).toHaveAttribute(
-        'href',
-        /trade\.mb\.io/,
-      );
-    });
+        const href = await link.getAttribute('href');
+        expect(href).not.toBeNull();
+        const result = await linkChecker.check(String(href), { maxRedirects: 5 });
+
+        expect(result.status, `${item.name} returned ${result.status}`).toBeLessThan(400);
+        expect(result.finalUrl).toMatch(item.finalUrl);
+      });
+    }
+
+    for (const item of accountNavigationItems) {
+      await test.step(`Validate ${item.name} destination`, async () => {
+        const link = header.desktopAccountLink(item.name);
+        await expect(link).toHaveAttribute('href', item.href);
+
+        const href = await link.getAttribute('href');
+        expect(href).not.toBeNull();
+        const result = await linkChecker.check(String(href), { maxRedirects: 5 });
+
+        expect(result.status, `${item.name} returned ${result.status}`).toBeLessThan(400);
+        expect(result.finalUrl).toMatch(item.finalUrl);
+      });
+    }
   });
 });
