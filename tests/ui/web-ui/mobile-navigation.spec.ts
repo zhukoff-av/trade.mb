@@ -2,25 +2,34 @@
 // plan-id: TRADEMB-WEBUI-010
 
 import { expect, test } from '../../../src/fixtures/ui';
+import { accountNavigationItems, mainNavigationItems } from '../../../src/data/public-site';
 
 test.describe('1.10 Mobile navigation is usable', () => {
-  test('Mobile navigation is usable', async ({ page, publicSite }) => {
+  test('Mobile navigation is usable', async ({ header, homePage, page }) => {
     await test.step('Open the public English home page at a mobile viewport', async () => {
       await page.setViewportSize({ width: 390, height: 844 });
-      await publicSite.openHome();
+      await homePage.open();
     });
 
     await test.step('Open the mobile menu', async () => {
-      await expect(publicSite.mobileMenuButton()).toBeVisible();
-      await publicSite.mobileMenuButton().click();
+      await expect(header.mobileMenuButton()).toBeVisible();
+      await header.openMobileMenu();
+      await expect(header.mobileMenu()).toBeVisible();
     });
 
-    await test.step('Confirm public navigation options are usable without horizontal overflow', async () => {
-      await expect(publicSite.navLink('Home')).toBeVisible();
-      await expect(publicSite.navLink('Sign up')).toBeVisible();
-      await expect.poll(() => publicSite.documentWidth()).toBeLessThanOrEqual(
-        (await publicSite.viewportWidth()) + 8,
-      );
+    await test.step('Confirm every public navigation option is available', async () => {
+      for (const item of mainNavigationItems) {
+        await expect(header.mobileNavigationLink(item.name)).toBeVisible();
+      }
+      for (const item of accountNavigationItems) {
+        await expect(header.mobileAccountLink(item.name)).toBeVisible();
+      }
+    });
+
+    await test.step('Confirm the mobile viewport has no horizontal overflow', async () => {
+      await expect
+        .poll(() => homePage.documentWidth())
+        .toBeLessThanOrEqual((await homePage.viewportWidth()) + 8);
     });
   });
 });

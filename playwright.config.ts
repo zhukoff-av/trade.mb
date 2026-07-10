@@ -1,12 +1,17 @@
+import 'dotenv/config';
 import { defineConfig, devices } from '@playwright/test';
-import { env } from './src/utils/env';
+
+const baseURL = new URL(process.env.BASE_URL ?? 'https://mb.io').toString();
 
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
-  retries: 1,
+  forbidOnly: Boolean(process.env.CI),
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
+    baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -14,19 +19,18 @@ export default defineConfig({
     {
       name: 'ui',
       testMatch: 'ui/**/*.spec.ts',
+      grepInvert: /@api/,
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: env.baseUrl,
-        storageState: env.useAuthState ? env.authStatePath : undefined,
       },
     },
     {
       name: 'api',
-      testMatch: 'api/**/*.spec.ts',
-      use: {
-        baseURL: env.apiUrl,
-        extraHTTPHeaders: env.apiToken ? { Authorization: `Bearer ${env.apiToken}` } : undefined,
-      },
+      testMatch: [
+        'ui/web-ui/app-download-link.spec.ts',
+        'ui/web-ui/navigation-links-resolve.spec.ts',
+      ],
+      grep: /@api/,
     },
   ],
 });

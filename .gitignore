@@ -7,6 +7,9 @@ playwright/.auth/
 .github/agents/
 .github/prompts/
 .claude/
+.codex/
+.playwright-cli/
+.mcp.json
 .env
 AGENTS.md
 CLAUDE.md

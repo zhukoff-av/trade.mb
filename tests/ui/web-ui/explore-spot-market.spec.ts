@@ -4,19 +4,19 @@
 import { expect, test } from '../../../src/fixtures/ui';
 
 test.describe('1.4 Explore page renders spot market content', () => {
-  test('Explore page renders spot market content', async ({ publicSite }) => {
+  test('Explore page renders spot market content', async ({ explorePage }) => {
     await test.step('Open the public Explore page', async () => {
-      await publicSite.openExplore();
+      await explorePage.open();
     });
 
     await test.step('Inspect the market discovery content', async () => {
-      await expect(publicSite.heading('Markets at your fingertips')).toBeVisible();
-      await expect(publicSite.heading('Spot market')).toBeVisible();
+      await expect(explorePage.heroHeading()).toBeVisible();
+      await expect(explorePage.spotMarketHeading()).toBeVisible();
     });
 
-    await test.step('Confirm spot market labels and asset content are present', async () => {
-      await expect(publicSite.text(/BTC|Bitcoin|ETH|Ethereum|USDT/i)).toBeVisible();
-      await expect(publicSite.text(/Price|Change|Volume|Market Cap/i)).toBeVisible();
+    await test.step('Confirm stable market labels and asset content are present', async () => {
+      await expect(explorePage.spotMarketSection).toContainText('Bitcoin');
+      await expect(explorePage.spotMarketSection).toContainText("Today's top crypto prices");
     });
   });
 });

@@ -1,393 +1,121 @@
-# Playwright Testing Guidelines
+# Playwright testing guidelines
 
-This document describes Playwright testing practices used by mature engineering teams. Tests should be stable, readable, maintainable, and useful for fast failure diagnosis.
+These standards apply to the public mb.io test suite. They supplement Playwright's official
+[best practices](https://playwright.dev/docs/best-practices) and
+[test configuration guidance](https://playwright.dev/docs/test-configuration).
 
-## 1. Test user scenarios
+## 1. Start with an approved Plan ID
 
-A good E2E test describes product behavior from the user's point of view, not implementation details.
-
-Write tests around scenarios:
-
-- a user signs in;
-- a user creates a ticket;
-- a user filters the catalog;
-- a user opens a knowledge base article;
-- a user sees an error for invalid data.
-
-Avoid tests that verify only DOM structure, CSS classes, or technical component details unless those details are an explicit product contract.
-
-## 2. One test, one reason to fail
-
-A test should verify one complete scenario or one important rule. If a test checks too many unrelated things, failures become hard to diagnose.
-
-Bad:
+Every scenario belongs in `specs/*.md` before automation. Each test file must begin with:
 
 ```ts
-test("portal works", async ({ page }) => {
-  // login
-  // create ticket
-  // search knowledge base
-  // open catalog
-  // check dashboard
-});
+// spec: specs/web-ui.md
+// plan-id: TRADEMB-WEBUI-NNN
 ```
 
-Good:
+The plan must define risk, coverage type, steps, expected behavior, and either the exact automation
+path or `Not automated`. Run `bun run plan-coverage` before and after changing a test.
+
+## 2. Test user-visible behavior
+
+Tests should describe what a signed-out visitor can see or do. Assert headings, links, destinations,
+responses, dialogs, and layout outcomes. Do not assert CSS implementation details unless layout is
+the explicit contract.
+
+Keep one reason to fail per Plan ID. Multiple parameterized cases are appropriate when they prove
+the same rule, such as supported desktop viewports or mobile-platform redirects.
+
+## 3. Scope locators to the correct region
+
+Prefer locators in this order:
+
+1. `getByRole` with an exact accessible name;
+2. `getByLabel` or `getByPlaceholder` for form controls;
+3. exact visible text when copy is the contract;
+4. a stable structural element such as `section` when page-region placement is the contract;
+5. test IDs only when no meaningful user-facing locator exists.
+
+Scope repeated names to their component or page section. A footer link must not satisfy a header
+assertion. Do not add `.first()`, `.last()`, or `.nth()` merely to silence strictness; duplicates
+should make the test fail unless order is an explicit product requirement.
+
+Use Playwright web-first assertions:
 
 ```ts
-test("user can create a technical issue ticket", async ({ page }) => {
-  // focused scenario
-});
+await expect(header.desktopNavigationLink('Explore')).toBeVisible();
+await expect(homePage.openAccountLink()).toHaveAttribute('href', 'https://trade.mb.io/register');
 ```
 
-## 3. Page Object
+## 4. Keep page objects focused
 
-Use Page Objects to encapsulate actions and locators for a specific page or a large UI area.
+- Components own reusable regions such as the public header.
+- Page objects own page-specific navigation, regions, and locators.
+- Fixtures compose those objects for tests.
+- Data modules own expected copy, viewports, and destination contracts.
+- Tests own assertions and scenario flow.
 
-Page Objects help you:
+Do not put assertions inside page objects. Do not create generic `text()`, `link()`, or `button()`
+wrappers that hide locator scope. Extract behavior after it repeats with the same meaning, not merely
+to reduce line count.
 
-- avoid duplicated locators;
-- give actions business meaning;
-- simplify test maintenance when the UI changes;
-- keep spec files short and readable.
+## 5. Treat production data deliberately
 
-Example structure:
+The target is a live public site. Stable headings, approved marketing copy, routes, and account
+destinations are valid contracts. Prices, percentages, article ordering, and other frequently
+changing values are not.
 
-```ts
-export class LoginPage {
-  constructor(private readonly page: Page) {}
+Locale redirects such as `/en` to `/en-AE` are supported. Match the allowed locale shape while still
+requiring the exact feature path.
 
-  readonly userNameInput = this.page.getByRole("textbox", { name: "User Name" });
-  readonly passwordInput = this.page.getByRole("textbox", { name: "Password" });
-  readonly signInButton = this.page.getByRole("button", { name: "Sign in" });
+## 6. Separate execution levels
 
-  async open() {
-    await this.page.goto("/hd");
-  }
+Use the UI project when rendered browser behavior is the subject. Use an `@api` test when the
+contract can be verified through Playwright's request context without a browser, such as HTTP
+status, redirect, and final-destination checks.
 
-  async signIn(userName: string, password: string) {
-    await this.userNameInput.fill(userName);
-    await this.passwordInput.fill(password);
-    await this.signInButton.click();
-  }
-}
-```
+When one Plan ID spans both concerns, keep both tests in its declared spec file. The `ui` project
+excludes `@api` tests and the `api` project selects them, preserving a single automation mapping for
+the Plan ID. API tests must not request `page`, page objects, or browser-only fixtures.
 
-A spec file should read like a scenario:
+## 7. Validate links without testing the internet
 
-```ts
-test("user can sign in with valid credentials", async ({ page }) => {
-  const loginPage = new LoginPage(page);
+For mb.io-owned navigation:
 
-  await loginPage.open();
-  await loginPage.signIn(user, password);
+- assert the rendered `href`;
+- request the destination;
+- require a status below 400;
+- assert the final host and path after redirects.
 
-  await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible();
-});
-```
+For a third-party store, assert the first-party smart link's redirect target instead of depending on
+the third party's page content or availability. Use `maxRedirects: 0` when the redirect itself is the
+contract. Do not submit sign-in, registration, or trading forms from public-link tests.
 
-Rule: a Page Object should not become a dumping ground for the whole project. Create separate objects for pages, modals, widgets, and large components.
+## 8. Wait for state, never time
 
-## 4. DRY, but avoid excessive abstractions
+Do not use `waitForTimeout`. Navigation uses `domcontentloaded`; subsequent actions and assertions
+wait for visible UI state, a URL, a response, or another meaningful product outcome.
 
-DRY means not copying the same behavior, locators, and setup code across multiple tests.
+Do not solve flakes by increasing timeouts or retries. Local runs have zero retries so flakes are
+visible immediately. CI retries collect a trace on the first retry and use one worker for stability.
 
-Extract:
+## 9. Keep tests isolated and diagnostic
 
-- repeated login/setup logic;
-- common user actions;
-- frequently used assertions;
-- test data preparation;
-- API helpers;
-- stable page locators.
+- Each test receives a fresh browser context.
+- Tests must run independently and in parallel locally.
+- Use `test.step` for reportable scenario phases.
+- Never depend on test order or another test's output.
+- Keep secrets in `.env`; never commit `.env`, authentication state, reports, traces, or local tooling
+  configuration.
 
-But do not create an abstraction for a single line. Readability matters in tests. Sometimes an explicit step in a spec file is better than an overly generic helper.
+## 10. Review and evidence checklist
 
-A good rule of thumb: if the same code appears 3 times with the same meaning, extract it.
+Before calling work complete, verify:
 
-## 5. Use user-facing locators
-
-Preferred locator order:
-
-1. `getByRole`
-2. `getByLabel`
-3. `getByPlaceholder`
-4. `getByText`, if the text is a user-facing contract
-5. `getByTestId`, when an element is hard to select in a user-facing way
-6. CSS/XPath only as a last resort
-
-Good:
-
-```ts
-await page.getByRole("button", { name: "Sign in" }).click();
-```
-
-Bad:
-
-```ts
-await page.locator(".btn-primary:nth-child(2)").click();
-```
-
-If the UI changes often, align with developers on stable `data-testid` attributes for critical elements.
-
-## 6. Do not use fixed timeouts
-
-Avoid `waitForTimeout`. Fixed sleeps make tests slower and less stable.
-
-Bad:
-
-```ts
-await page.waitForTimeout(3000);
-```
-
-Good:
-
-```ts
-await expect(page.getByRole("heading", { name: "My Tickets" })).toBeVisible();
-```
-
-Wait for product state: visibility, URL, network response, loader disappearance, or result appearance.
-
-## 7. Assertions must be explicit
-
-Every test should finish by verifying a result that matters to the user or the business.
-
-Good:
-
-```ts
-await expect(page.getByText("Ticket submitted successfully")).toBeVisible();
-await expect(page.getByRole("link", { name: ticketTitle })).toBeVisible();
-```
-
-Bad:
-
-```ts
-await page.getByRole("button", { name: "Submit" }).click();
-```
-
-A click without a result assertion does not prove that the scenario works.
-
-## 8. Tests must be independent
-
-A test should not depend on the result of another test. Each test should prepare the state it needs or use shared setup.
-
-Use:
-
-- `beforeEach` for local preparation;
-- `globalSetup` or `*.setup.ts` for authentication;
-- API calls to create data when they are faster and more stable than UI steps;
-- unique test data names.
-
-Do not rely on test execution order. In CI, tests can run in parallel, in a different order, or more than once.
-
-## 9. Test data must be controlled
-
-In large teams, unstable data often breaks E2E tests more than the UI itself.
-
-Recommendations:
-
-- create data through an API when possible;
-- use unique names with a timestamp or `testInfo.workerIndex`;
-- clean up data after the test if it pollutes the environment;
-- do not use real user accounts;
-- store secrets in environment variables, not in code.
-
-## 10. Authentication should be fast
-
-Do not sign in through the UI in every test unless login itself is the thing being tested.
-
-For most scenarios, it is better to:
-
-- authenticate once in a setup file;
-- save `storageState`;
-- reuse that state in tests.
-
-UI login is needed for login tests. Other scenarios should start already authenticated.
-
-## 11. Tests must work well in CI
-
-A test may pass locally while CI is slower and stricter.
-
-Rules:
-
-- do not depend on animation speed;
-- do not rely on local browser state;
-- do not rely on test execution order;
-- keep traces, screenshots, and videos for failure diagnosis;
-- verify tests in headless mode;
-- do not make tests longer than necessary.
-
-## 12. Use `test.step`
-
-`test.step` makes reports easier to read. It is especially useful in longer business scenarios.
-
-```ts
-await test.step("Open technical issue form", async () => {
-  await dashboard.openTechnicalIssueForm();
-});
-
-await test.step("Submit required fields", async () => {
-  await issueForm.submit({
-    title,
-    description,
-    priority: "High",
-  });
-});
-```
-
-Good step names help you quickly understand where a test failed.
-
-## 13. Avoid conditional logic in tests
-
-A test should be predictable. If it contains many `if` statements, it may verify different scenarios in different runs.
-
-Bad:
-
-```ts
-if (await page.getByText("Skip").isVisible()) {
-  await page.getByText("Skip").click();
-}
-```
-
-Sometimes defensive logic is acceptable for external popups or unstable overlays, but it should be extracted into a helper and named clearly.
-
-## 14. Use APIs when the UI is not the subject
-
-If a test verifies creating a ticket through a form, the ticket should be created through the UI.
-
-But if a test verifies the ticket list, the ticket can be created beforehand through an API. This is faster and more reliable.
-
-Rule: use the UI for what you are actually testing. Prepare everything else in the most stable way available.
-
-## 15. Test names should describe behavior
-
-A test name should answer the question: what can the user do, or what rule is being verified?
-
-Good:
-
-```ts
-test("user sees validation errors when required ticket fields are empty", async ({ page }) => {});
-```
-
-Bad:
-
-```ts
-test("ticket test 1", async ({ page }) => {});
-```
-
-## 16. Separate test levels
-
-Not everything needs to be verified through E2E tests.
-
-Use E2E for:
-
-- critical user journeys;
-- frontend, backend, and authentication integration;
-- scenarios where real browser behavior matters.
-
-Do not use E2E for:
-
-- every validation variant;
-- every small branch of business logic;
-- pure function checks;
-- exhaustive testing.
-
-Use unit, integration, or component tests for smaller logic.
-
-## 17. Minimize flakiness
-
-Common causes of flaky tests:
-
-- fixed waits;
-- unstable selectors;
-- dependency on external data;
-- parallel tests modifying the same data;
-- clicking before the UI is ready;
-- not waiting for the result after an action;
-- random popups or overlays in the environment.
-
-If a test is flaky, fix the cause instead of only increasing the timeout.
-
-## 18. File structure
-
-Recommended structure:
-
-```text
-tests/
-  <domain>/
-    <feature>/
-      pages/
-        <domain>.page.ts
-        <feature>.page.ts
-      components/
-        header.component.ts
-        assistant.component.ts
-      fixtures/
-        <domain>.fixtures.ts
-      sign-in-with-valid-demo-user.spec.ts
-      create-a-technical-issue-ticket.spec.ts
-```
-
-For example, a test for `https://demoqa.com/text-box` should live under:
-
-```text
-tests/demoqa/text-box/
-  fixtures/demoqa.fixtures.ts
-  pages/demoqa.page.ts
-  pages/text-box.page.ts
-  reject-invalid-email-format.spec.ts
-```
-
-Naming rules:
-
-- use a short domain folder from the hostname, such as `demoqa` for `demoqa.com`;
-- use a feature folder from the URL path, such as `text-box` for `/text-box`;
-- use a fs-friendly scenario filename, such as `reject-invalid-email-format.spec.ts`.
-
-Spec files own scenarios. Page Objects and component files own UI interaction details. Fixtures own object composition.
-Prefer importing `test` from a local fixture module when a spec needs page objects or shared components:
-
-```ts
-import { expect } from '@playwright/test';
-import { test } from './fixtures/demoqa.fixtures';
-
-test('Reject Invalid Email Format', async ({ demoqaPage }) => {
-  await demoqaPage.textBox.open();
-  await demoqaPage.textBox.fillForm({
-    fullName: 'Alan Turing',
-    email: 'alan.turing',
-    currentAddress: 'Bletchley Park',
-    permanentAddress: 'Maida Vale',
-  });
-
-  await expect(demoqaPage.textBox.emailInput).toHaveClass(/field-error/);
-});
-```
-
-For simple pages, a focused fixture such as `textBoxPage` is acceptable. For growing domains, prefer a thin domain
-fixture such as `demoqaPage` that composes smaller page and component objects. Avoid constructing page objects directly
-inside each spec when a fixture exists or is being introduced, and avoid God Objects that collect all locators and
-actions for an entire product.
-
-## 19. Code review checklist
-
-Before merging, check that:
-
-- the test verifies real user behavior;
-- the test has explicit assertions;
-- there is no `waitForTimeout`, except in rare justified cases;
-- locators are stable and user-facing;
-- repeated code has been extracted;
-- new domain-specific specs are not placed directly in the root of `tests/`;
-- page objects and components are composed through fixtures when that improves maintainability;
-- Page Objects do not contain unnecessary business logic;
-- the test is independent from other tests;
-- data is unique or controlled;
-- the test passes locally and in CI;
-- a failure will be understandable from the trace/report.
-
-## 20. The main rule
-
-A Playwright test should read like a good instruction for a human: open the page, perform clear actions, see the expected result.
-
-If a test is hard to read, hard to fix, or hard to explain, simplify it.
+- the plan and automation headers agree;
+- assertions prove the expected behavior rather than mere element existence;
+- locators are exact, scoped, and strict;
+- no fixed waits, `.only`, accidental `.skip`, or mutable-value assertions exist;
+- request checks have clear ownership and destination expectations;
+- page objects contain locators/actions, while specs contain assertions;
+- no AI-agent, MCP, authentication, report, trace, or generated inspection files are tracked;
+- `plan-coverage`, formatting, zero-warning lint, typecheck, API tests, and UI tests all pass.
