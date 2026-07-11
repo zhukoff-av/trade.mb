@@ -1,9 +1,22 @@
 export const publicRoutes = {
   home: '/en',
   explore: '/en/explore',
+  features: '/en/features',
+  otcDesk: '/en/features/otc-desk',
   company: '/en/company',
+  support: '/en/support',
   invalid: '/en/this-route-should-not-exist',
 } as const;
+
+export function localeAwarePath(path: string): RegExp {
+  const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^/en(?:-[A-Z]{2})?${escapedPath}$`);
+}
+
+export function localeAwarePublicUrl(path: string): RegExp {
+  const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^https://mb\\.io/en(?:-[A-Z]{2})?${escapedPath}$`);
+}
 
 export const mainNavigationItems = [
   {
@@ -73,6 +86,136 @@ export const desktopViewports = [
 export const horizontalOverflowTolerancePx = 8;
 
 export const expectedMarketHeadings = ['Top Gainers', 'Trending Now', 'Top Losers'] as const;
+
+export const homeSupportingCards = [
+  'The fastest way to trade',
+  'Credit card & Bank transfers',
+  'Move funds effortlessly',
+  'Stay informed',
+  'Security of funds',
+] as const;
+
+export const footerNavigationGroups = [
+  {
+    heading: 'Corporate',
+    links: [
+      { name: 'Disclaimer', path: '/about/disclaimer-gcc' },
+      { name: 'Code of Conduct', path: '/about/code-of-conduct-gcc' },
+      { name: 'Public Disclosure', path: '/about/public-disclosure-gcc' },
+      { name: 'Acceptable Use Policy', path: '/about/acceptable-use-policy-gcc' },
+      { name: 'Leadership Management', path: '/about/leadership-management-gcc' },
+    ],
+  },
+  {
+    heading: 'Privacy',
+    links: [
+      { name: 'Privacy Policy', path: '/about/privacy-policy-gcc' },
+      { name: 'Cookie Policy', path: '/about/cookie-policy-gcc' },
+      { name: 'Public Complaint Policy', path: '/about/complaint-policy-gcc' },
+      { name: 'VA Standards', path: '/about/virtual-asset-standards-gcc' },
+    ],
+  },
+  {
+    heading: 'Compliance',
+    links: [
+      { name: 'Terms & Conditions', path: '/about/terms-conditions-gcc' },
+      { name: 'Client Agreement', path: '/about/client-agreement-gcc' },
+      { name: 'Anti Bribery Corruption Policy', path: '/about/anti-bribery-corruption-policy-gcc' },
+    ],
+  },
+] as const;
+
+export const explorePromotionalCards = [
+  'Earn rewards',
+  'Instant buy crypto',
+  'Deposit funds',
+] as const;
+
+export const exploreLinkedPromotionalCards = [
+  { imageName: 'Instant buy crypto', href: gatedDestinations.login },
+  { imageName: 'Deposit funds', href: gatedDestinations.login },
+] as const;
+
+export const exploreMarketTabs = ['Hot', 'Gainers', 'Losers'] as const;
+
+export const featuresContent = {
+  heroHeading: 'The power of crypto is yours',
+  featureHeadings: [
+    'Easily explore opportunities',
+    'Smart asset insights at a glance',
+    'Buy, sell, convert in three taps',
+    'Earn yield that feels rewarding',
+    'Clearly presented wallet portfolio',
+    '$MBG unlocks mb.io benefits',
+    'VIP Experience benefits that scale with you',
+  ],
+  solutionsHeading: 'Solutions with advantages',
+  solutionCards: ['Fiat on/off ramps', 'Heavily regulated', 'Seamless OTC execution'],
+} as const;
+
+export const otcContent = {
+  heroHeading: 'Large trades. Zero market impact. Full discretion.',
+  quoteHeading: 'Request a quote',
+  inputPlaceholders: [
+    'First name',
+    'Last name',
+    'Enter your email',
+    'Enter your phone number',
+    'Enter any additional notes (optional)',
+  ],
+  benefitsHeading: 'Trade with the #1 OTC Desk in the UAE',
+  benefits: [
+    'Best available pricing',
+    'Zero market impact',
+    'Regulated custody',
+    'Fiat settlement',
+    'Dedicated relationship manager',
+    'Same-day settlement',
+  ],
+  processHeading: 'How it works',
+  processSteps: ['Apply', 'Verify', 'Connect', 'Trade'],
+  faqHeading: 'Frequently Asked Questions',
+} as const;
+
+export const supportContent = {
+  heroHeading: "Got questions? We're always here!",
+  quickActionsHeading: 'Quick actions',
+  quickActions: [
+    { name: 'What is mb.io?', path: '/support/faq/my-account/what-is-mb-io' },
+    {
+      name: 'How do I add funds to my mb.io account?',
+      path: '/support/faq/adding-funds/how-do-i-add-funds-to-my-mb-io-account',
+    },
+    {
+      name: 'What fees does mb.io charge?',
+      path: '/support/faq/trading-fees-2/what-fees-does-mb-io-charge',
+    },
+  ],
+  faqHeading: 'FAQs',
+  faqCategories: [
+    { name: 'My Account', path: '/support/faq/my-account' },
+    { name: 'Adding Funds', path: '/support/faq/adding-funds' },
+    { name: 'Trading', path: '/support/faq/trading-2' },
+  ],
+  faqIndexPath: '/support/faq',
+  assistanceHeading: 'Need help with something else?',
+  requestPath: '/support/contact-us',
+  termsPath: '/terms-and-conditions',
+} as const;
+
+export const tokenContent = {
+  landingUrl: /^https:\/\/token\.mb\.io\/en(?:-[A-Z]{2})?\/?$/,
+  utilityHeading: 'Hold $MBG. Unlock the ecosystem.',
+  utilityCards: [
+    'Lower trading fees.',
+    'Earn interest on $MBG',
+    'VIP features',
+    'Beyond crypto. Into the real world.',
+  ],
+  roadmapHeading: '$MBG Roadmap',
+  allocationHeading: '$MBG Token Allocation Breakdown Vesting Schedule',
+  buyUrl: /^https:\/\/mbio\.go\.link\/price\/MBG(?:\?|$)/,
+} as const;
 
 export const appDownloadUrl = 'https://mbio.go.link/6OW91';
 
