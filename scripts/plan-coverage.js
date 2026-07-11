@@ -1,127 +1,164 @@
-#!/usr/bin/env node
-/**
- * Enforces the plan <-> test contract:
- *   specs/**.md scenarios declare `**Plan ID:** \`ID\`` and `**Automation:** ...`
- *   tests/**.spec.ts declare `// plan-id: ID`
- *
- * Fails (exit 1) on:
- *   - duplicate Plan IDs across specs/
- *   - a test referencing a Plan ID no scenario declares
- *   - an Automation line pointing at a file that does not exist
- *   - a scenario marked automated with no test carrying its Plan ID
- *   - a scenario still `Not automated` although a test carries its Plan ID
- */
-'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
 
-const fs = require('fs');
-const path = require('path');
+const root = process.cwd();
+const specsDir = path.join(root, 'specs');
+const testsDir = path.join(root, 'tests');
+const planIdPattern = /`(TRADEMB-[A-Z0-9]+-\d{3})`/;
 
-const ROOT = path.resolve(__dirname, '..');
-const SPECS_DIR = path.join(ROOT, 'specs');
-const TESTS_DIR = path.join(ROOT, 'tests');
+function listFiles(dir, predicate) {
+  if (!fs.existsSync(dir)) {
+    return [];
+  }
 
-function walk(dir, suffix) {
-  if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) return walk(full, suffix);
-    return full.endsWith(suffix) ? [full] : [];
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  return entries.flatMap((entry) => {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      return listFiles(fullPath, predicate);
+    }
+
+    return predicate(fullPath) ? [fullPath] : [];
   });
 }
 
-function parsePlans(errors) {
-  const scenarios = new Map();
-  for (const file of walk(SPECS_DIR, '.md')) {
-    const rel = path.relative(ROOT, file);
-    let current = null;
-    for (const line of fs.readFileSync(file, 'utf8').split('\n')) {
-      const idMatch = line.match(/\*\*Plan ID:\*\*\s*`?([A-Z][A-Z0-9-]+)`?/);
-      if (idMatch) {
-        const id = idMatch[1];
-        if (scenarios.has(id)) {
-          errors.push(
-            `Duplicate Plan ID ${id} in ${rel} (already declared in ${scenarios.get(id).plan})`,
-          );
-          current = null;
-        } else {
-          current = { id, plan: rel, automation: null };
-          scenarios.set(id, current);
-        }
-        continue;
-      }
-      const autoMatch = line.match(/\*\*Automation:\*\*\s*(.+)/);
-      if (autoMatch && current) {
-        current.automation = autoMatch[1].trim().replace(/`/g, '');
-      }
-    }
-  }
-  return scenarios;
+function toProjectPath(filePath) {
+  return path.relative(root, filePath).split(path.sep).join('/');
 }
 
-function parseTests() {
-  const refs = new Map();
-  for (const file of walk(TESTS_DIR, '.spec.ts')) {
-    const rel = path.relative(ROOT, file);
-    for (const match of fs.readFileSync(file, 'utf8').matchAll(/^\/\/\s*plan-id:\s*(\S+)/gm)) {
-      const list = refs.get(match[1]) ?? [];
-      list.push(rel);
-      refs.set(match[1], list);
-    }
-  }
-  return refs;
+function fail(message) {
+  console.error(message);
+  process.exitCode = 1;
 }
 
-function main() {
-  const errors = [];
-  const scenarios = parsePlans(errors);
-  const refs = parseTests();
+const planFiles = listFiles(specsDir, (file) => file.endsWith('.md'));
+const testFiles = listFiles(testsDir, (file) => file.endsWith('.spec.ts'));
+const scenarios = new Map();
+const duplicatePlanIds = new Set();
 
-  for (const [id, files] of refs) {
-    if (!scenarios.has(id)) {
-      errors.push(`Unknown Plan ID ${id} referenced by ${files.join(', ')}`);
+for (const planFile of planFiles) {
+  const lines = fs.readFileSync(planFile, 'utf8').split(/\r?\n/);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (!line.startsWith('**Plan ID:**')) {
+      continue;
     }
-  }
 
-  const rows = [];
-  for (const [id, scenario] of scenarios) {
-    const tests = refs.get(id) ?? [];
-    const notAutomated = !scenario.automation || /not automated/i.test(scenario.automation);
-
-    if (notAutomated && tests.length > 0) {
-      errors.push(
-        `Scenario ${id} is marked "Not automated" in ${scenario.plan} but ${tests.join(', ')} references it — flip its Automation line`,
-      );
+    const match = line.match(planIdPattern);
+    if (!match) {
+      fail(`${toProjectPath(planFile)}:${index + 1} has a malformed Plan ID line`);
+      continue;
     }
-    if (!notAutomated) {
-      if (!fs.existsSync(path.join(ROOT, scenario.automation))) {
-        errors.push(
-          `Scenario ${id} Automation line points at missing file: ${scenario.automation}`,
-        );
-      }
-      if (tests.length === 0) {
-        errors.push(`Scenario ${id} is marked automated but no test carries "// plan-id: ${id}"`);
-      }
+
+    const planId = match[1];
+    if (scenarios.has(planId)) {
+      duplicatePlanIds.add(planId);
     }
-    rows.push({ id, plan: scenario.plan, automated: !notAutomated, tests });
-  }
 
-  console.log('Plan coverage');
-  console.log('-------------');
-  for (const row of rows) {
-    const status = row.automated ? 'automated' : 'not automated';
-    console.log(`${row.id.padEnd(24)} ${status.padEnd(15)} ${row.tests.join(', ') || '-'}`);
-  }
-  const automated = rows.filter((row) => row.automated).length;
-  console.log(
-    `\n${automated}/${rows.length} scenarios automated, ${refs.size} plan-linked test file group(s)`,
-  );
+    const coverageLine = lines[index + 1] ?? '';
+    const riskLine = lines[index + 2] ?? '';
+    const automationLine = lines[index + 3] ?? '';
 
-  if (errors.length > 0) {
-    console.error('\nContract violations:');
-    for (const error of errors) console.error(`  ✗ ${error}`);
-    process.exit(1);
+    scenarios.set(planId, {
+      planFile,
+      line: index + 1,
+      coverageLine,
+      riskLine,
+      automationLine,
+    });
   }
-  console.log('\nOK: specs/ and tests/ are in sync');
 }
 
-main();
+for (const duplicatePlanId of duplicatePlanIds) {
+  fail(`Duplicate Plan ID found: ${duplicatePlanId}`);
+}
+
+for (const [planId, scenario] of scenarios) {
+  if (!scenario.coverageLine.startsWith('**Coverage:**')) {
+    fail(
+      `${toProjectPath(scenario.planFile)}:${scenario.line + 1} missing Coverage line for ${planId}`,
+    );
+  }
+
+  if (!scenario.riskLine.startsWith('**Risk:**')) {
+    fail(
+      `${toProjectPath(scenario.planFile)}:${scenario.line + 2} missing Risk line for ${planId}`,
+    );
+  }
+
+  if (!scenario.automationLine.startsWith('**Automation:**')) {
+    fail(
+      `${toProjectPath(scenario.planFile)}:${scenario.line + 3} missing Automation line for ${planId}`,
+    );
+  }
+}
+
+const automatedPlanIds = new Map();
+
+for (const testFile of testFiles) {
+  const content = fs.readFileSync(testFile, 'utf8');
+  const projectPath = toProjectPath(testFile);
+  const specMatch = content.match(/^\/\/ spec: (.+)$/m);
+  const planIdMatch = content.match(/^\/\/ plan-id: (TRADEMB-[A-Z0-9]+-\d{3})$/m);
+
+  if (!specMatch) {
+    fail(`${projectPath} missing // spec: header`);
+    continue;
+  }
+
+  if (!planIdMatch) {
+    fail(`${projectPath} missing // plan-id: header`);
+    continue;
+  }
+
+  const declaredSpec = specMatch[1];
+  const planId = planIdMatch[1];
+  const scenario = scenarios.get(planId);
+
+  if (!scenario) {
+    fail(`${projectPath} references unknown Plan ID ${planId}`);
+    continue;
+  }
+
+  if (declaredSpec !== toProjectPath(scenario.planFile)) {
+    fail(`${projectPath} declares ${declaredSpec}, expected ${toProjectPath(scenario.planFile)}`);
+  }
+
+  if (automatedPlanIds.has(planId)) {
+    fail(`${planId} is automated by both ${automatedPlanIds.get(planId)} and ${projectPath}`);
+  }
+  automatedPlanIds.set(planId, projectPath);
+
+  const expectedAutomation = `**Automation:** \`${projectPath}\``;
+  if (scenario.automationLine !== expectedAutomation) {
+    fail(
+      `${toProjectPath(scenario.planFile)}:${scenario.line + 3} automation for ${planId} must be ${expectedAutomation}`,
+    );
+  }
+}
+
+for (const [planId, scenario] of scenarios) {
+  if (scenario.automationLine === '**Automation:** Not automated') {
+    continue;
+  }
+
+  const match = scenario.automationLine.match(/`([^`]+)`/);
+  if (!match) {
+    fail(`${toProjectPath(scenario.planFile)}:${scenario.line + 3} has malformed Automation path`);
+    continue;
+  }
+
+  if (!fs.existsSync(path.join(root, match[1]))) {
+    fail(`${toProjectPath(scenario.planFile)}:${scenario.line + 3} references missing ${match[1]}`);
+  }
+
+  if (!automatedPlanIds.has(planId)) {
+    fail(`${planId} automation path exists in plan but no test declares that Plan ID`);
+  }
+}
+
+if (process.exitCode) {
+  process.exit();
+}
+
+console.log(`Plan coverage OK: ${scenarios.size} scenarios, ${testFiles.length} automated specs`);

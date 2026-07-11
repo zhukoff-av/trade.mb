@@ -1,12 +1,16 @@
 node_modules/
 test-results/
 playwright-report/
+blob-report/
 .auth/
 playwright/.auth/
 *.auth.json
 .github/agents/
 .github/prompts/
 .claude/
+.codex/
+.playwright-cli/
+.mcp.json
 .env
 AGENTS.md
 CLAUDE.md

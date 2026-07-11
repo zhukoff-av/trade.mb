@@ -1,111 +1,115 @@
-# trade-mb-qa
+# trade.mb.io Playwright tests
 
-Playwright UI + API test automation for the trading web app [trade.mb.io](https://trade.mb.io),
-built around an **AI agent workflow**: six specialized agents plan, generate, review, heal, and
-verify tests, chained by an orchestrated pipeline with an enforceable plan↔test contract.
+[![Tests](https://github.com/zhukoff-av/trade.mb/actions/workflows/playwright.yml/badge.svg?branch=main&label=tests)](https://github.com/zhukoff-av/trade.mb/actions/workflows/playwright.yml)
+[![Maintainability](https://img.shields.io/codefactor/grade/github/zhukoff-av/trade.mb/main?label=maintainability)](https://www.codefactor.io/repository/github/zhukoff-av/trade.mb)
+[![Language](https://img.shields.io/github/languages/top/zhukoff-av/trade.mb?label=language)](https://github.com/zhukoff-av/trade.mb)
 
-## Stack
+Playwright end-to-end coverage for the signed-out public experience at [mb.io](https://mb.io).
+The project uses Bun, TypeScript, and Playwright with Chromium. It contains tests and supporting
+test framework code only.
 
-Bun · TypeScript (strict) · Playwright 1.60 (UI e2e + browser-less API testing) · zod (schema
-validation) · ESLint 9 + eslint-plugin-playwright · Prettier
+## Prerequisites
 
-## Setup & run
+- Bun 1.3.14
+- Chromium installed through Playwright
 
 ```sh
 bun install
 bunx playwright install chromium
-cp .env.example .env          # optional — defaults target https://trade.mb.io
-
-bun run test:ui               # UI smoke (Desktop Chrome)
-bun run test:api              # API smoke (no browser)
-bun run lint && bun run typecheck
-bun run plan-coverage         # specs/ ↔ tests/ contract check
-bun run report                # open the HTML report
 ```
 
-## Local authenticated UI runs
+The default target is `https://mb.io`. To use another compatible environment, copy `.env.example`
+to `.env` and set `BASE_URL`.
 
-Authentication is opt-in so public UI and API checks still run without credentials. Create the
-local browser state from a manually authenticated Chrome session:
+Existing local configurations must also set `BASE_URL` to the public website; legacy API,
+authentication, and secondary public-URL variables are no longer read by this lean suite.
+
+## Commands
 
 ```sh
-bun run auth:setup
+bun run test             # all configured Playwright test levels
+bun run test:ui          # all Chromium UI tests
+bun run test:api         # browserless API and network contract tests
+bun run test:headed      # UI tests in a headed browser
+bun run test:ui-mode     # Playwright UI mode
+bun run plan-coverage    # Plan ID and automation mapping contract
+bun run format:check     # Prettier verification
+bun run lint             # ESLint and Playwright rules
+bun run typecheck        # strict TypeScript check
+bun run report           # open the most recent HTML report
 ```
 
-The command launches regular Google Chrome with a dedicated local profile and a debug port bound
-only to loopback. Log in completely in Chrome, including OTP, without Playwright attached. After
-the authenticated page opens, return to the terminal and press Enter. Playwright then connects
-over CDP only to save cookies, local storage, and IndexedDB state to `.auth/user.json`.
-
-The dedicated Chrome profile is stored under `.auth/chrome-profile` and is also ignored by git.
-Close that Chrome window after the state is saved so the local debug port is no longer available.
-Run UI tests with the saved state while the session remains valid:
+Run the narrowest affected spec while developing:
 
 ```sh
-bun run test:ui:auth
+bunx playwright test tests/ui/web-ui/<scenario>.spec.ts --project=ui
 ```
 
-`.auth/`, `playwright/.auth/`, and `*.auth.json` are gitignored because storage-state files can
-contain live cookies, tokens, and session IDs. Never commit or share them. For CI, prefer a
-test-environment OTP bypass or a dedicated email OTP helper. Restoring storage state from a CI
-secret is possible but requires rotation whenever the session expires, and Cloudflare may still
-challenge a new CI IP or browser.
+## Architecture
 
-## Agent architecture
-
-AI agent tooling is **local-only and not committed to git** — the repository ships the test
-framework and product code; the agent scaffolding used to build and extend it lives outside
-version control (see `.gitignore`: `.claude/`, `AGENTS.md`, `CLAUDE.md`). The only AI-tooling file
-that is tracked is [.mcp.json](.mcp.json), which registers the Playwright test MCP server so any
-MCP-compatible agent (Claude Code, Codex, ...) gets browser-exploration and test-debug tools.
-
-Locally, `.claude/agents/` holds six subagent playbooks — test-planner, test-generator,
-test-reviewer, test-healer, framework-engineer, verifier — chained by a `/qa-pipeline` command
-with explicit gates:
-
-```
-plan ──► generate ──► review ──► (heal, if failing) ──► verify
- │           │           │              │                  │
- specs/…md   tests/…ts   findings +     root cause +       READY /
- + Plan IDs  + plan-id   quality score  rerun evidence     NOT READY
- [user OK]   [coverage✓] [no Crit/Maj]  [3× stable]        [all gates]
+```text
+specs/                  Plan-ID scenarios and expected behavior
+tests/ui/web-ui/        Plan-ID scenarios with UI and tagged API contracts
+src/components/         Reusable page regions such as the public header
+src/pages/              Focused Home, Explore, and Company page objects
+src/fixtures/           Test fixture composition
+src/data/               Stable expected navigation and content contracts
+src/utils/              Request-level link validation
+scripts/                Plan-to-automation contract enforcement
 ```
 
-The handoff mechanism is the **Plan ID contract** — tracked in git, independent of any agent
-tooling: every scenario in `specs/` declares `**Plan ID:**` / `**Automation:**`, every test starts
-with `// spec:` + `// plan-id:` headers, and [scripts/plan-coverage.js](scripts/plan-coverage.js)
-fails the build when they drift apart.
+Tests import `test` and `expect` from `src/fixtures/ui.ts`. Page objects expose business-relevant
+regions and actions; test data holds expected content and destination contracts. Live prices and
+other mutable market values are deliberately excluded from assertions.
 
-## Test framework (clean architecture)
+Tests tagged `@api` use only Playwright's request context. The `api` project selects those contracts
+without launching Chromium, while the `ui` project excludes them and exercises the rendered site.
 
+## Coverage
+
+The 11 Plan IDs cover:
+
+- complete desktop and mobile navigation;
+- navigation destination and broken-link checks;
+- two desktop layout breakpoints and one mobile breakpoint;
+- home-page promotions and market groups;
+- Explore spot-market content;
+- iOS App Store and Android Google Play smart-link routing;
+- all required Why MultiBank Group content;
+- exact 404 handling and signed-out gated destinations.
+
+Every `*.spec.ts` file declares its source plan and Plan ID. `bun run plan-coverage` rejects missing,
+duplicate, stale, or incorrectly mapped IDs.
+
+## CI and completion evidence
+
+GitHub Actions reports four independent required checks:
+
+```text
+install
+  └── quality-gates
+        ├── api-tests
+        └── ui-tests
 ```
-tests/
-  ui/<feature>/*.spec.ts      UI specs (project: ui)
-  api/<feature>/*.spec.ts     API specs (project: api, no browser)
-src/
-  fixtures/                   typed fixtures — specs import test/expect from here
-  pages/                      page objects (getByRole-first locator policy)
-  api/clients/ + schemas/     typed clients over APIRequestContext + zod schemas
-  data/                       unique-by-construction test data builders
-  utils/env.ts                zod-validated env config (single process.env entry point)
-specs/                        markdown test plans (planner output)
+
+- `install` verifies the frozen Bun lockfile and dependency graph.
+- `quality-gates` enforces Plan-ID coverage, Prettier, zero-warning lint, and TypeScript.
+- `api-tests` runs browserless navigation and app-store redirect contracts.
+- `ui-tests` installs Chromium and runs the complete browser suite.
+
+API and UI results are merged into one `playwright-html-report` artifact. The `Playwright report`
+job also adds a run-time summary with totals, outcome, failures, and duration to each Actions run.
+
+Work is complete only when these commands pass:
+
+```sh
+bun run plan-coverage
+bun run format:check
+bun run lint
+bun run typecheck
+bun run test:api
+bun run test:ui
 ```
 
-Imports point downward only; specs contain no logic and construct nothing directly.
-
-## Design decisions
-
-- **Two Playwright projects** (`ui`, `api`) share one toolchain: browser e2e and request-context
-  API tests without a second framework.
-- **API responses parse through zod schemas** in the client layer, so contract drift fails loudly
-  in one place instead of leaking into assertions.
-- **Reviewer/verifier are read-only by tool grant**, not just by instruction — review and evidence
-  stages cannot silently "fix" what they judge.
-- **CI is intentionally descoped** for this assignment. With more time: a GitHub Actions workflow
-  running lint → typecheck → plan-coverage → both projects with trace artifacts on failure, plus a
-  scheduled flakiness run feeding test-healer.
-- **Agent definitions are gitignored on purpose**: the repository is judged on the test framework
-  it produces, not the AI scaffolding that produced it. `.mcp.json` is the one exception — it is
-  tool config, not an agent opinion, so it stays tracked.
-- `.github/agents/` and `.github/prompts/` are the original `playwright init-agents` output
-  (VS Code Copilot format, also gitignored), superseded locally by `.claude/agents/`.
+Project-specific contribution standards are documented in
+[`PLAYWRIGHT_TESTING_GUIDELINES.md`](PLAYWRIGHT_TESTING_GUIDELINES.md).

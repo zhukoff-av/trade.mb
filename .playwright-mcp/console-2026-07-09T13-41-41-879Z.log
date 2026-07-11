@@ -1,9 +1,0 @@
-[    2186ms] [WARNING] [DEPRECATED] Default export is deprecated. Instead use `import { create } from 'zustand'`. @ https://trade.mb.io/_next/static/chunks/pages/_app-2d0bc3da0dbf159f.js:17
-[    2205ms] [WARNING] [DEPRECATED] Default export is deprecated. Instead use `import { create } from 'zustand'`. @ https://trade.mb.io/_next/static/chunks/pages/_app-2d0bc3da0dbf159f.js:17
-[    2513ms] [INFO] [adjust-sdk] 2026-07-09T13:41:44.392Z INFO:  Log level set to error @ https://trade.mb.io/_next/static/chunks/pages/_app-2d0bc3da0dbf159f.js:17
-[    3419ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://app.adjust.com/session:0
-[    3420ms] [ERROR] [adjust-sdk] 2026-07-09T13:41:45.298Z ERROR: Session was not successful, error was returned from the server: Session failed (tracking disabled) (platform:web) @ https://trade.mb.io/_next/static/chunks/pages/_app-2d0bc3da0dbf159f.js:17
-[    6280ms] [WARNING] The resource https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/cmg/1 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/turnstile/f/av0/rch/7q9tg/0x4AAAAAADGMzlx-1KnA017Z/auto/fbE/new/normal?lang=auto:0
-[    6413ms] [LOG] [PWA] Service Worker registered: https://trade.mb.io/ @ https://trade.mb.io/_next/static/chunks/pages/_app-2d0bc3da0dbf159f.js:17
-[    7465ms] [LOG] [PWA] New content available @ https://trade.mb.io/_next/static/chunks/pages/_app-2d0bc3da0dbf159f.js:17
-[   36327ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ https://www.clarity.ms/tag/tri405zsfn?ref=gtm:0
