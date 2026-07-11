@@ -14,5 +14,11 @@
     "noUnusedParameters": true,
     "types": ["node"]
   },
-  "include": ["tests/**/*.ts", "src/**/*.ts", "scripts/**/*.ts", "playwright.config.ts"]
+  "include": [
+    "tests/**/*.ts",
+    "src/**/*.ts",
+    "scripts/**/*.ts",
+    "playwright.config.ts",
+    "playwright.auth-cdp.config.ts"
+  ]
 }

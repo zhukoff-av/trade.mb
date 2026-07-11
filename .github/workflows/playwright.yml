@@ -159,10 +159,74 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  auth-ui-tests:
+    runs-on: ubuntu-latest
+    needs: quality-gates
+    timeout-minutes: 30
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🥟 Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: ♻️ Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: ♻️ Cache Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: 📦 Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: 🌐 Install Chromium
+        run: bunx playwright install --with-deps chromium
+
+      - name: 🔐 Restore authenticated browser state
+        env:
+          AUTH_STATE_B64: ${{ secrets.AUTH_STATE_B64 }}
+        shell: bash
+        run: |
+          if [ -z "$AUTH_STATE_B64" ]; then
+            echo 'AUTH_STATE_B64 is required for authenticated UI tests.' >&2
+            exit 1
+          fi
+
+          mkdir -p .auth
+          printf '%s' "$AUTH_STATE_B64" | base64 --decode > .auth/user.json
+          chmod 600 .auth/user.json
+          node -e "const s=JSON.parse(require('node:fs').readFileSync('.auth/user.json','utf8'));if(!Array.isArray(s.cookies)||!Array.isArray(s.origins))throw new Error('Invalid storage state');if(s.cookies.some(c=>!/(^|\.)mb\.io$/.test(c.domain)))throw new Error('Storage state contains non-mb.io cookies')"
+
+      - name: 🔏 Run authenticated trading UI tests
+        env:
+          AUTH_STATE_PATH: .auth/user.json
+        run: bun run test:ui:auth
+
+      - name: 📎 Upload authenticated UI blob report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-blob-auth-ui
+          path: blob-report/
+          if-no-files-found: ignore
+          retention-days: 7
+
   report:
     name: Playwright report
     if: always()
-    needs: [api-tests, ui-tests]
+    needs: [api-tests, ui-tests, auth-ui-tests]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -178,7 +242,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: 📥 Download Playwright blob reports
-        if: ${{ needs.api-tests.result == 'success' || needs.api-tests.result == 'failure' || needs.ui-tests.result == 'success' || needs.ui-tests.result == 'failure' }}
+        if: ${{ needs.api-tests.result == 'success' || needs.api-tests.result == 'failure' || needs.ui-tests.result == 'success' || needs.ui-tests.result == 'failure' || needs.auth-ui-tests.result == 'success' || needs.auth-ui-tests.result == 'failure' }}
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
@@ -214,5 +278,6 @@ jobs:
         env:
           API_TEST_RESULT: ${{ needs.api-tests.result }}
           UI_TEST_RESULT: ${{ needs.ui-tests.result }}
+          AUTH_UI_TEST_RESULT: ${{ needs.auth-ui-tests.result }}
           HTML_REPORT_URL: ${{ steps.upload-report.outputs.artifact-url }}
         run: node scripts/github-playwright-summary.js

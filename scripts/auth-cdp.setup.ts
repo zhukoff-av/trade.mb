@@ -1,4 +1,4 @@
-import { chmod, mkdir } from 'node:fs/promises';
+import { chmod, mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { chromium, test as setup } from '@playwright/test';
 import { env } from '../src/utils/env';
@@ -14,7 +14,8 @@ setup('save manually authenticated Chrome state', async () => {
       throw new Error('Chrome has no browser context to export');
     }
 
-    const baseOrigin = new URL(env.baseUrl).origin;
+    const baseUrl = new URL(env.baseUrl);
+    const baseOrigin = baseUrl.origin;
     const page = context.pages().find((candidate) => {
       try {
         return new URL(candidate.url()).origin === baseOrigin;
@@ -33,7 +34,17 @@ setup('save manually authenticated Chrome state', async () => {
     }
 
     await mkdir(dirname(env.authStatePath), { recursive: true });
-    await context.storageState({ path: env.authStatePath, indexedDB: true });
+    const state = await context.storageState({ indexedDB: true });
+    const belongsToPortal = (hostname: string): boolean => {
+      const normalized = hostname.replace(/^\./, '');
+      return baseUrl.hostname === normalized || baseUrl.hostname.endsWith(`.${normalized}`);
+    };
+    const portalState = {
+      cookies: state.cookies.filter((cookie) => belongsToPortal(cookie.domain)),
+      origins: state.origins.filter((origin) => belongsToPortal(new URL(origin.origin).hostname)),
+    };
+
+    await writeFile(env.authStatePath, JSON.stringify(portalState, null, 2), { mode: 0o600 });
     await chmod(env.authStatePath, 0o600);
     console.log(`Authenticated state saved to ${env.authStatePath}. You can now close Chrome.`);
   } finally {

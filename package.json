@@ -1,12 +1,14 @@
 {
   "name": "trade-mb-qa",
   "version": "1.0.0",
-  "description": "Playwright test automation for the public mb.io website",
+  "description": "Playwright test automation for public mb.io and its authenticated trading portal",
   "packageManager": "bun@1.3.14",
   "scripts": {
-    "test": "playwright test",
+    "test": "playwright test --project=ui --project=api",
     "test:ui": "playwright test --project=ui",
     "test:api": "playwright test --project=api",
+    "test:ui:auth": "playwright test --project=auth-ui",
+    "auth:setup": "playwright test --config=playwright.auth-cdp.config.ts --project=auth-cdp",
     "test:headed": "playwright test --project=ui --headed",
     "test:ui-mode": "playwright test --ui",
     "lint": "eslint .",
