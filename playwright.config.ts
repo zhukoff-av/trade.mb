@@ -29,6 +29,22 @@ export default defineConfig({
       },
     },
     {
+      name: 'ui-firefox',
+      testMatch: 'ui/web-ui/**/*.spec.ts',
+      grepInvert: /@api/,
+      use: {
+        ...devices['Desktop Firefox'],
+      },
+    },
+    {
+      name: 'ui-webkit',
+      testMatch: 'ui/web-ui/**/*.spec.ts',
+      grepInvert: /@api/,
+      use: {
+        ...devices['Desktop Safari'],
+      },
+    },
+    {
       name: 'api',
       testMatch: 'ui/web-ui/**/*.spec.ts',
       grep: /@api/,
