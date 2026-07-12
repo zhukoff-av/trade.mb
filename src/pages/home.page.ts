@@ -55,6 +55,14 @@ export class HomePage extends BasePage {
     return this.marketSection.getByRole('heading', { name, exact: true });
   }
 
+  supportingCard(name: string): Locator {
+    return this.page.getByText(name, { exact: true });
+  }
+
+  exploreAllAssetsLink(): Locator {
+    return this.marketSection.getByRole('link', { name: 'Explore all assets', exact: true });
+  }
+
   currentUrl(): string {
     return this.page.url();
   }
