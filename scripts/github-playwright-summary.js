@@ -9,7 +9,9 @@ if (!summaryPath) {
 
 const testJobs = [
   ['API tests', process.env.API_TEST_RESULT],
-  ['UI tests', process.env.UI_TEST_RESULT],
+  ['Cross-browser UI tests', process.env.UI_TEST_RESULT],
+  ['Authenticated UI tests', process.env.AUTH_UI_TEST_RESULT],
+  ['Authenticated API tests', process.env.AUTH_API_TEST_RESULT],
 ];
 const testJobResults = testJobs
   .filter(([, result]) => result)
@@ -22,7 +24,7 @@ if (!fs.existsSync(reportPath)) {
     [
       '# Playwright tests summary',
       '',
-      'A combined Playwright report could not be generated because no blob reports were available.',
+      'A public Playwright report could not be generated because no credential-free blob reports were available.',
       '',
       testJobResults,
       '',
@@ -64,15 +66,23 @@ const artifactUrl = process.env.HTML_REPORT_URL;
 const artifact = artifactUrl
   ? `[playwright-html-report](${artifactUrl})`
   : '`playwright-html-report`';
+const publishedReportUrl = process.env.PUBLISHED_REPORT_URL;
+const publishedReport = publishedReportUrl
+  ? `[latest successful public report](${publishedReportUrl})`
+  : 'not configured';
 
 fs.appendFileSync(
   summaryPath,
   [
     '# Playwright tests summary',
     '',
-    '## Playwright: all',
+    '## Public Playwright report',
     '',
     `**Status:** ${status}`,
+    '',
+    '### Workflow jobs',
+    '',
+    testJobResults,
     '',
     '| Total | Passed | Failed | Flaky | Skipped | Duration |',
     '| ---: | ---: | ---: | ---: | ---: | ---: |',
@@ -80,6 +90,9 @@ fs.appendFileSync(
     '',
     failedTestSection,
     `HTML report artifact: ${artifact}`,
+    `GitHub Pages: ${publishedReport}`,
+    '',
+    'Authenticated job outcomes are listed above but excluded from the public HTML report.',
     '',
     '_Job summary generated at run-time._',
     '',

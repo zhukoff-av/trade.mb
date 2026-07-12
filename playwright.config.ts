@@ -2,6 +2,8 @@ import 'dotenv/config';
 import { defineConfig, devices } from '@playwright/test';
 
 const baseURL = new URL(process.env.BASE_URL ?? 'https://mb.io').toString();
+const authBaseURL = new URL(process.env.AUTH_BASE_URL ?? 'https://trade.mb.io').toString();
+const authStatePath = process.env.AUTH_STATE_PATH ?? '.auth/user.json';
 
 export default defineConfig({
   testDir: './tests',
@@ -20,16 +22,48 @@ export default defineConfig({
   projects: [
     {
       name: 'ui',
-      testMatch: 'ui/**/*.spec.ts',
+      testMatch: 'ui/web-ui/**/*.spec.ts',
       grepInvert: /@api/,
       use: {
         ...devices['Desktop Chrome'],
       },
     },
     {
+      name: 'ui-firefox',
+      testMatch: 'ui/web-ui/**/*.spec.ts',
+      grepInvert: /@api/,
+      use: {
+        ...devices['Desktop Firefox'],
+      },
+    },
+    {
+      name: 'ui-webkit',
+      testMatch: 'ui/web-ui/**/*.spec.ts',
+      grepInvert: /@api/,
+      use: {
+        ...devices['Desktop Safari'],
+      },
+    },
+    {
       name: 'api',
-      testMatch: 'ui/**/*.spec.ts',
+      testMatch: 'ui/web-ui/**/*.spec.ts',
       grep: /@api/,
+    },
+    {
+      name: 'auth-ui',
+      testMatch: 'ui/auth/**/*.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: authBaseURL,
+        storageState: authStatePath,
+      },
+    },
+    {
+      name: 'auth-api',
+      testMatch: 'api/auth/**/*.spec.ts',
+      use: {
+        storageState: authStatePath,
+      },
     },
   ],
 });

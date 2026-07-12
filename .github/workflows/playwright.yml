@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -107,12 +108,78 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-blob-api
+          name: playwright-public-blob-api
+          path: blob-report/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  public-ui-tests:
+    name: UI tests (${{ matrix.engine }})
+    runs-on: ubuntu-latest
+    needs: quality-gates
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - engine: chromium
+            project: ui
+          - engine: firefox
+            project: ui-firefox
+          - engine: webkit
+            project: ui-webkit
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🥟 Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: ♻️ Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: ♻️ Cache ${{ matrix.engine }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ matrix.engine }}-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-${{ matrix.engine }}-
+
+      - name: 📦 Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: 🌐 Install ${{ matrix.engine }}
+        run: bunx playwright install --with-deps ${{ matrix.engine }}
+
+      - name: 🎭 Run ${{ matrix.engine }} UI tests
+        run: bunx playwright test --project=${{ matrix.project }}
+
+      - name: 📎 Upload ${{ matrix.engine }} UI blob report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-public-blob-ui-${{ matrix.engine }}
           path: blob-report/
           if-no-files-found: ignore
           retention-days: 7
 
   ui-tests:
+    needs: public-ui-tests
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm all public browser checks passed
+        run: test "${{ needs.public-ui-tests.result }}" = "success"
+
+  auth-ui-tests:
     runs-on: ubuntu-latest
     needs: quality-gates
     timeout-minutes: 30
@@ -147,24 +214,96 @@ jobs:
       - name: 🌐 Install Chromium
         run: bunx playwright install --with-deps chromium
 
-      - name: 🎭 Run Chromium UI tests
-        run: bun run test:ui
+      - name: 🔐 Restore authenticated browser state
+        env:
+          AUTH_STATE_B64: ${{ secrets.AUTH_STATE_B64 }}
+        shell: bash
+        run: |
+          if [ -z "$AUTH_STATE_B64" ]; then
+            echo 'AUTH_STATE_B64 is required for authenticated UI tests.' >&2
+            exit 1
+          fi
 
-      - name: 📎 Upload UI blob report
+          mkdir -p .auth
+          printf '%s' "$AUTH_STATE_B64" | base64 --decode > .auth/user.json
+          chmod 600 .auth/user.json
+          node -e "const s=JSON.parse(require('node:fs').readFileSync('.auth/user.json','utf8'));if(!Array.isArray(s.cookies)||!Array.isArray(s.origins))throw new Error('Invalid storage state');if(s.cookies.some(c=>!/(^|\.)mb\.io$/.test(c.domain)))throw new Error('Storage state contains non-mb.io cookies')"
+
+      - name: 🔏 Run authenticated trading UI tests
+        env:
+          AUTH_STATE_PATH: .auth/user.json
+        run: bun run test:ui:auth
+
+      - name: 📎 Upload authenticated UI blob report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-blob-ui
+          name: playwright-private-blob-auth-ui
+          path: blob-report/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  auth-api-tests:
+    runs-on: ubuntu-latest
+    needs: quality-gates
+    timeout-minutes: 15
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🥟 Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: ♻️ Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: 📦 Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: 🔐 Restore authenticated browser state
+        env:
+          AUTH_STATE_B64: ${{ secrets.AUTH_STATE_B64 }}
+        shell: bash
+        run: |
+          if [ -z "$AUTH_STATE_B64" ]; then
+            echo 'AUTH_STATE_B64 is required for authenticated API tests.' >&2
+            exit 1
+          fi
+
+          mkdir -p .auth
+          printf '%s' "$AUTH_STATE_B64" | base64 --decode > .auth/user.json
+          chmod 600 .auth/user.json
+          node -e "const s=JSON.parse(require('node:fs').readFileSync('.auth/user.json','utf8'));if(!Array.isArray(s.cookies)||!Array.isArray(s.origins))throw new Error('Invalid storage state');if(s.cookies.some(c=>!/(^|\.)mb\.io$/.test(c.domain)))throw new Error('Storage state contains non-mb.io cookies')"
+
+      - name: 🔏 Run authenticated API tests
+        env:
+          AUTH_STATE_PATH: .auth/user.json
+        run: bun run test:api:auth
+
+      - name: 📎 Upload authenticated API blob report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-private-blob-auth-api
           path: blob-report/
           if-no-files-found: ignore
           retention-days: 7
 
   report:
-    name: Playwright report
+    name: Public Playwright report
     if: always()
-    needs: [api-tests, ui-tests]
+    needs: [api-tests, public-ui-tests, auth-ui-tests, auth-api-tests]
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      public_report_available: ${{ steps.merge-reports.outputs.available }}
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
@@ -177,12 +316,12 @@ jobs:
       - name: 📦 Install report dependencies
         run: bun install --frozen-lockfile
 
-      - name: 📥 Download Playwright blob reports
-        if: ${{ needs.api-tests.result == 'success' || needs.api-tests.result == 'failure' || needs.ui-tests.result == 'success' || needs.ui-tests.result == 'failure' }}
+      - name: 📥 Download public Playwright blob reports
+        if: ${{ needs.api-tests.result == 'success' || needs.api-tests.result == 'failure' || needs.public-ui-tests.result == 'success' || needs.public-ui-tests.result == 'failure' }}
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
-          pattern: playwright-blob-*
+          pattern: playwright-public-blob-*
           path: blob-reports
           merge-multiple: true
 
@@ -209,10 +348,38 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - name: 📎 Upload public report for GitHub Pages
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.api-tests.result == 'success' && needs.public-ui-tests.result == 'success' && needs.auth-ui-tests.result == 'success' && needs.auth-api-tests.result == 'success' && steps.merge-reports.outputs.available == 'true' }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: playwright-report/
+
       - name: 📝 Publish Playwright summary
         if: always()
         env:
           API_TEST_RESULT: ${{ needs.api-tests.result }}
-          UI_TEST_RESULT: ${{ needs.ui-tests.result }}
+          UI_TEST_RESULT: ${{ needs.public-ui-tests.result }}
+          AUTH_UI_TEST_RESULT: ${{ needs.auth-ui-tests.result }}
+          AUTH_API_TEST_RESULT: ${{ needs.auth-api-tests.result }}
           HTML_REPORT_URL: ${{ steps.upload-report.outputs.artifact-url }}
+          PUBLISHED_REPORT_URL: https://zhukoff-av.github.io/trade.mb/
         run: node scripts/github-playwright-summary.js
+
+  deploy-pages:
+    name: Deploy public report to GitHub Pages
+    if: ${{ !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.api-tests.result == 'success' && needs.public-ui-tests.result == 'success' && needs.auth-ui-tests.result == 'success' && needs.auth-api-tests.result == 'success' && needs.report.result == 'success' && needs.report.outputs.public_report_available == 'true' }}
+    needs: [api-tests, public-ui-tests, auth-ui-tests, auth-api-tests, report]
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⚙️ Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: 🚀 Deploy public Playwright report
+        id: deployment
+        uses: actions/deploy-pages@v5
