@@ -205,3 +205,189 @@
 - Sign in and View platform features point to the trade.mb.io login route.
 - Sign up, Open an account, and Start Portfolio point to the registration route.
 - No form is submitted and no account or trading state is created.
+
+### 1.12 Home supporting cards render
+
+**Plan ID:** `TRADEMB-WEBUI-012`
+**Coverage:** UI
+**Risk:** Medium - supporting product cards communicate the platform's core capabilities.
+**Automation:** `tests/ui/web-ui/home-supporting-cards.spec.ts`
+
+**Steps:**
+
+1. Open the public English home page.
+2. Inspect the funding and platform-benefit card groups.
+
+**Expected:**
+
+- The fastest-trading and card-or-bank-transfer content renders.
+- Move funds effortlessly, Stay informed, and Security of funds render as distinct card content.
+
+### 1.13 Home footer renders required navigation
+
+**Plan ID:** `TRADEMB-WEBUI-013`
+**Coverage:** UI
+**Risk:** Medium - visitors rely on footer navigation for policy and compliance information.
+**Automation:** `tests/ui/web-ui/home-footer.spec.ts`
+
+**Steps:**
+
+1. Open the public English home page.
+2. Inspect the Footer navigation inside the page footer.
+
+**Expected:**
+
+- Corporate, Privacy, and Compliance groups are visible.
+- The test scopes assertions to the page footer, so page-body content cannot satisfy them.
+
+### 1.14 Home Explore all assets opens Explore
+
+**Plan ID:** `TRADEMB-WEBUI-014`
+**Coverage:** UI
+**Risk:** High - the home market CTA is the primary transition into public asset discovery.
+**Automation:** `tests/ui/web-ui/home-explore-navigation.spec.ts`
+
+**Steps:**
+
+1. Open the public English home page.
+2. Locate Explore all assets inside Catch your next trade.
+3. Activate the link.
+
+**Expected:**
+
+- The CTA has the locale-aware Explore destination.
+- Navigation ends on the public Explore route.
+- The Explore hero is visible after navigation.
+
+### 1.15 Explore promotional cards render
+
+**Plan ID:** `TRADEMB-WEBUI-015`
+**Coverage:** UI
+**Risk:** Medium - promotional entry cards expose the primary funding and earning journeys.
+**Automation:** `tests/ui/web-ui/explore-promotional-cards.spec.ts`
+
+**Steps:**
+
+1. Open the public Explore page.
+2. Inspect the promotional card group beneath the hero.
+
+**Expected:**
+
+- Earn rewards, Instant buy, and Deposit funds cards render with their stable labels.
+- Signed-out action cards point to the login destination.
+
+### 1.16 Explore market tabs render complete token rows
+
+**Plan ID:** `TRADEMB-WEBUI-016`
+**Coverage:** UI
+**Risk:** High - incomplete market rows prevent visitors from comparing discoverable assets.
+**Automation:** `tests/ui/web-ui/explore-market-tabs.spec.ts`
+
+**Steps:**
+
+1. Open the public Explore page and locate Today's top crypto prices.
+2. Select Hot, Gainers, and Losers in turn.
+3. Inspect every rendered token row after each selection.
+
+**Expected:**
+
+- Every tab is visible, enabled, and produces at least one token row.
+- Every row contains an asset link, displayed price, percentage, and chart region or explicit no-data fallback.
+- The test validates display formats but not live values, token identity, or ordering.
+
+### 1.17 Features page renders feature and solution cards
+
+**Plan ID:** `TRADEMB-WEBUI-017`
+**Coverage:** UI
+**Risk:** Medium - missing feature content weakens product discovery and conversion.
+**Automation:** `tests/ui/web-ui/features-cards.spec.ts`
+
+**Steps:**
+
+1. Open the public Features page.
+2. Inspect all named feature sections.
+3. Inspect the Solutions with advantages cards.
+
+**Expected:**
+
+- All seven stable feature headings are visible.
+- Fiat on/off ramps, Heavily regulated, and Seamless OTC execution render in the solutions section.
+
+### 1.18 OTC quote form renders safely for signed-out visitors
+
+**Plan ID:** `TRADEMB-WEBUI-018`
+**Coverage:** UI
+**Risk:** High - visitors cannot begin an OTC enquiry if the quote form is incomplete.
+**Automation:** `tests/ui/web-ui/otc-quote-form.spec.ts`
+
+**Steps:**
+
+1. Open the public OTC Desk page.
+2. Inspect the Request a quote form without entering personal data.
+3. Inspect its initial action state.
+
+**Expected:**
+
+- The hero and quote-form heading render.
+- First name, last name, email, phone, notes, and three required selectors are present.
+- Next is disabled while the required form is empty.
+- No quote is submitted.
+
+### 1.19 OTC benefit, process, and FAQ content renders
+
+**Plan ID:** `TRADEMB-WEBUI-019`
+**Coverage:** UI
+**Risk:** Medium - OTC visitors need clear execution benefits and onboarding steps before enquiring.
+**Automation:** `tests/ui/web-ui/otc-content.spec.ts`
+
+**Steps:**
+
+1. Open the public OTC Desk page.
+2. Inspect the benefit-card group and How it works steps.
+3. Inspect the FAQ region and quote anchor.
+
+**Expected:**
+
+- All six named OTC benefit articles render.
+- Apply, Verify, Connect, and Trade render inside How it works.
+- Frequently Asked Questions and a Request a quote anchor are visible.
+
+### 1.20 Support page renders discovery and assistance cards
+
+**Plan ID:** `TRADEMB-WEBUI-020`
+**Coverage:** UI
+**Risk:** High - missing support discovery paths can prevent visitors from finding help.
+**Automation:** `tests/ui/web-ui/support-content.spec.ts`
+
+**Steps:**
+
+1. Open the public Support page.
+2. Inspect the FAQ search, Quick actions, FAQ categories, and View more link.
+3. Inspect the Need help with something else cards.
+
+**Expected:**
+
+- The support hero and FAQ search field render.
+- Representative quick actions and FAQ categories have locale-aware support destinations.
+- View more points to the FAQ index.
+- Chat with us, Submit a request, and Terms and conditions cards render with their expected action types and destinations.
+
+### 1.21 $MBG navigation opens the token landing page
+
+**Plan ID:** `TRADEMB-WEBUI-021`
+**Coverage:** UI
+**Risk:** High - the public navigation must lead to a usable token-information destination.
+**Automation:** `tests/ui/web-ui/mbg-landing.spec.ts`
+
+**Steps:**
+
+1. Open the public English home page and activate $MBG in Main navigation.
+2. Follow the redirect to the token site.
+3. Inspect stable utility, roadmap, allocation, and purchase content.
+
+**Expected:**
+
+- Navigation ends on the locale-aware token.mb.io landing page.
+- A visible $MBG hero and all four utility cards render.
+- Roadmap and token-allocation sections are visible.
+- Buy $MBG exposes the expected mbio.go.link smart-link path without initiating a purchase.
