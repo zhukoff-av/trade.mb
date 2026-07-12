@@ -6,7 +6,7 @@ export class FooterComponent {
 
   constructor(page: Page) {
     this.root = page.getByRole('contentinfo');
-    this.navigation = this.root.getByRole('navigation', { name: 'Footer' });
+    this.navigation = this.root;
   }
 
   groupHeading(name: string): Locator {

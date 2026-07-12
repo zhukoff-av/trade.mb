@@ -204,7 +204,7 @@ export const supportContent = {
 } as const;
 
 export const tokenContent = {
-  landingUrl: /^https:\/\/token\.mb\.io\/en(?:-[A-Z]{2})?\/?$/,
+  landingUrl: /^https:\/\/token\.mb\.io\/en(?:-[A-Z]{2})?\/?(?:\?[^#]*)?$/,
   utilityHeading: 'Hold $MBG. Unlock the ecosystem.',
   utilityCards: [
     'Lower trading fees.',
