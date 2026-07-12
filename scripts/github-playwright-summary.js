@@ -11,6 +11,7 @@ const testJobs = [
   ['API tests', process.env.API_TEST_RESULT],
   ['UI tests', process.env.UI_TEST_RESULT],
   ['Authenticated UI tests', process.env.AUTH_UI_TEST_RESULT],
+  ['Authenticated API tests', process.env.AUTH_API_TEST_RESULT],
 ];
 const testJobResults = testJobs
   .filter(([, result]) => result)

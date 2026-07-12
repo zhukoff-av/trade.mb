@@ -42,5 +42,12 @@ export default defineConfig({
         storageState: authStatePath,
       },
     },
+    {
+      name: 'auth-api',
+      testMatch: 'api/auth/**/*.spec.ts',
+      use: {
+        storageState: authStatePath,
+      },
+    },
   ],
 });

@@ -5,8 +5,8 @@
 [![Language](https://img.shields.io/github/languages/top/zhukoff-av/trade.mb?label=language)](https://github.com/zhukoff-av/trade.mb)
 
 Playwright end-to-end coverage for the signed-out public experience at [mb.io](https://mb.io) and
-authenticated market discovery at [trade.mb.io](https://trade.mb.io). The project uses Bun,
-TypeScript, and Playwright with Chromium. It contains tests and supporting test framework code only.
+authenticated market discovery and API contracts at [trade.mb.io](https://trade.mb.io). The project
+uses Bun, TypeScript, and Playwright. It contains tests and supporting test framework code only.
 
 ## Prerequisites
 
@@ -29,6 +29,7 @@ bun run test             # all configured Playwright test levels
 bun run test:ui          # all Chromium UI tests
 bun run test:api         # browserless API and network contract tests
 bun run auth:setup       # save a manually authenticated local browser state
+bun run test:api:auth    # authenticated browserless API contracts
 bun run test:ui:auth     # authenticated trading portal tests only
 bun run test:headed      # UI tests in a headed browser
 bun run test:ui-mode     # Playwright UI mode
@@ -44,18 +45,21 @@ Run the narrowest affected spec while developing:
 ```sh
 bunx playwright test tests/ui/web-ui/<scenario>.spec.ts --project=ui
 bunx playwright test tests/ui/auth/<scenario>.spec.ts --project=auth-ui
+bunx playwright test tests/api/auth/<scenario>.spec.ts --project=auth-api
 ```
 
-## Authenticated UI tests
+## Authenticated UI and API tests
 
 Public and authenticated tests are separate Playwright projects. `ui` and `api` never load account
-state, while `auth-ui` only selects `tests/ui/auth/` and reads `AUTH_STATE_PATH` (default:
-`.auth/user.json`). The default `bun run test` command remains credential-free.
+state. `auth-ui` selects `tests/ui/auth/`, while `auth-api` selects `tests/api/auth/`; both read
+`AUTH_STATE_PATH` (default: `.auth/user.json`). The default `bun run test` command remains
+credential-free.
 
 Create local state with a regular Chrome session so login and OTP are completed manually:
 
 ```sh
 bun run auth:setup
+bun run test:api:auth
 bun run test:ui:auth
 ```
 
@@ -78,7 +82,9 @@ provides the protection.
 ```text
 specs/                  Plan-ID scenarios and expected behavior
 tests/ui/web-ui/        Plan-ID scenarios with UI and tagged API contracts
-tests/ui/auth/          Authenticated market scenarios
+tests/ui/auth/          Authenticated market UI scenarios
+tests/api/auth/         Authenticated API contracts
+src/api/                Authenticated service clients
 src/components/         Reusable page regions such as the public header
 src/pages/              Focused Home, Explore, and Company page objects
 src/fixtures/           Test fixture composition
@@ -108,6 +114,7 @@ The Plan IDs cover:
 - all required Why MultiBank Group content;
 - exact 404 handling and signed-out gated destinations.
 - authenticated market rendering, category membership, and complete market row fields.
+- authenticated crypto rates, wallet PnL, wallet balance, and market-price contracts.
 
 Every `*.spec.ts` file declares its source plan and Plan ID. `bun run plan-coverage` rejects missing,
 duplicate, stale, or incorrectly mapped IDs.
@@ -121,7 +128,8 @@ install
   └── quality-gates
         ├── api-tests
         ├── ui-tests
-        └── auth-ui-tests
+        ├── auth-ui-tests
+        └── auth-api-tests
 ```
 
 - `install` verifies the frozen Bun lockfile and dependency graph.
@@ -129,10 +137,12 @@ install
 - `api-tests` runs browserless navigation and app-store redirect contracts.
 - `ui-tests` installs Chromium and runs the complete browser suite.
 - `auth-ui-tests` restores protected storage state and runs only authenticated market tests.
+- `auth-api-tests` restores the same protected state and runs authenticated contracts without a
+  browser.
 
-API, public UI, and authenticated UI results are merged into one `playwright-html-report` artifact.
-The `Playwright report` job also adds a run-time summary with totals, outcome, failures, and duration
-to each Actions run.
+API, public UI, authenticated UI, and authenticated API results are merged into one
+`playwright-html-report` artifact. The `Playwright report` job also adds a run-time summary with
+totals, outcome, failures, and duration to each Actions run.
 
 Work is complete only when these commands pass:
 
@@ -143,6 +153,7 @@ bun run lint
 bun run typecheck
 bun run test:api
 bun run test:ui
+AUTH_STATE_PATH=.auth/user.json bun run test:api:auth
 AUTH_STATE_PATH=.auth/user.json bun run test:ui:auth
 ```
 

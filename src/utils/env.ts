@@ -7,6 +7,11 @@ function urlFromEnvironment(name: string, fallback: string): string {
 
 export const env = {
   baseUrl: urlFromEnvironment('AUTH_BASE_URL', 'https://trade.mb.io'),
+  coreApiBaseUrl: urlFromEnvironment('CORE_API_BASE_URL', 'https://core-api.mb.io'),
+  marketDataApiBaseUrl: urlFromEnvironment(
+    'MARKET_DATA_API_BASE_URL',
+    'https://mbg-market-data-service.mb.io',
+  ),
   authStatePath: process.env.AUTH_STATE_PATH || '.auth/user.json',
   authCdpUrl: urlFromEnvironment('AUTH_CDP_URL', 'http://127.0.0.1:9222'),
   authChromeProfilePath: process.env.AUTH_CHROME_PROFILE_PATH || '.auth/chrome-profile',
