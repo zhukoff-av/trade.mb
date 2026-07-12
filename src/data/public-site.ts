@@ -95,35 +95,7 @@ export const homeSupportingCards = [
   'Security of funds',
 ] as const;
 
-export const footerNavigationGroups = [
-  {
-    heading: 'Corporate',
-    links: [
-      { name: 'Disclaimer', path: '/about/disclaimer-gcc' },
-      { name: 'Code of Conduct', path: '/about/code-of-conduct-gcc' },
-      { name: 'Public Disclosure', path: '/about/public-disclosure-gcc' },
-      { name: 'Acceptable Use Policy', path: '/about/acceptable-use-policy-gcc' },
-      { name: 'Leadership Management', path: '/about/leadership-management-gcc' },
-    ],
-  },
-  {
-    heading: 'Privacy',
-    links: [
-      { name: 'Privacy Policy', path: '/about/privacy-policy-gcc' },
-      { name: 'Cookie Policy', path: '/about/cookie-policy-gcc' },
-      { name: 'Public Complaint Policy', path: '/about/complaint-policy-gcc' },
-      { name: 'VA Standards', path: '/about/virtual-asset-standards-gcc' },
-    ],
-  },
-  {
-    heading: 'Compliance',
-    links: [
-      { name: 'Terms & Conditions', path: '/about/terms-conditions-gcc' },
-      { name: 'Client Agreement', path: '/about/client-agreement-gcc' },
-      { name: 'Anti Bribery Corruption Policy', path: '/about/anti-bribery-corruption-policy-gcc' },
-    ],
-  },
-] as const;
+export const footerNavigationGroups = ['Corporate', 'Privacy', 'Compliance'] as const;
 
 export const explorePromotionalCards = [
   'Earn rewards',

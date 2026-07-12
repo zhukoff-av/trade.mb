@@ -238,8 +238,7 @@
 **Expected:**
 
 - Corporate, Privacy, and Compliance groups are visible.
-- Each group contains its expected locale-aware policy links.
-- Header or page-body links cannot satisfy footer assertions.
+- The test scopes assertions to the page footer, so page-body content cannot satisfy them.
 
 ### 1.14 Home Explore all assets opens Explore
 

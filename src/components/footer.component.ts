@@ -12,8 +12,4 @@ export class FooterComponent {
   groupHeading(name: string): Locator {
     return this.navigation.getByRole('heading', { name, exact: true });
   }
-
-  link(name: string): Locator {
-    return this.navigation.getByRole('link', { name, exact: true });
-  }
 }
