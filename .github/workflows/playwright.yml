@@ -112,7 +112,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  ui-tests:
+  public-ui-tests:
     name: UI tests (${{ matrix.engine }})
     runs-on: ubuntu-latest
     needs: quality-gates
@@ -169,6 +169,14 @@ jobs:
           path: blob-report/
           if-no-files-found: ignore
           retention-days: 7
+
+  ui-tests:
+    needs: public-ui-tests
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm all public browser checks passed
+        run: test "${{ needs.public-ui-tests.result }}" = "success"
 
   auth-ui-tests:
     runs-on: ubuntu-latest
@@ -290,7 +298,7 @@ jobs:
   report:
     name: Public Playwright report
     if: always()
-    needs: [api-tests, ui-tests, auth-ui-tests, auth-api-tests]
+    needs: [api-tests, public-ui-tests, auth-ui-tests, auth-api-tests]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -308,7 +316,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: 📥 Download public Playwright blob reports
-        if: ${{ needs.api-tests.result == 'success' || needs.api-tests.result == 'failure' || needs.ui-tests.result == 'success' || needs.ui-tests.result == 'failure' }}
+        if: ${{ needs.api-tests.result == 'success' || needs.api-tests.result == 'failure' || needs.public-ui-tests.result == 'success' || needs.public-ui-tests.result == 'failure' }}
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
@@ -340,7 +348,7 @@ jobs:
           retention-days: 7
 
       - name: 📎 Upload public report for GitHub Pages
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.api-tests.result == 'success' && needs.ui-tests.result == 'success' && needs.auth-ui-tests.result == 'success' && needs.auth-api-tests.result == 'success' && steps.merge-reports.outputs.available == 'true' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.api-tests.result == 'success' && needs.public-ui-tests.result == 'success' && needs.auth-ui-tests.result == 'success' && needs.auth-api-tests.result == 'success' && steps.merge-reports.outputs.available == 'true' }}
         uses: actions/upload-pages-artifact@v3
         with:
           path: playwright-report/
@@ -349,7 +357,7 @@ jobs:
         if: always()
         env:
           API_TEST_RESULT: ${{ needs.api-tests.result }}
-          UI_TEST_RESULT: ${{ needs.ui-tests.result }}
+          UI_TEST_RESULT: ${{ needs.public-ui-tests.result }}
           AUTH_UI_TEST_RESULT: ${{ needs.auth-ui-tests.result }}
           AUTH_API_TEST_RESULT: ${{ needs.auth-api-tests.result }}
           HTML_REPORT_URL: ${{ steps.upload-report.outputs.artifact-url }}
@@ -358,8 +366,8 @@ jobs:
 
   deploy-pages:
     name: Deploy public report to GitHub Pages
-    if: ${{ !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.api-tests.result == 'success' && needs.ui-tests.result == 'success' && needs.auth-ui-tests.result == 'success' && needs.auth-api-tests.result == 'success' && needs.report.result == 'success' && needs.report.outputs.public_report_available == 'true' }}
-    needs: [api-tests, ui-tests, auth-ui-tests, auth-api-tests, report]
+    if: ${{ !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.api-tests.result == 'success' && needs.public-ui-tests.result == 'success' && needs.auth-ui-tests.result == 'success' && needs.auth-api-tests.result == 'success' && needs.report.result == 'success' && needs.report.outputs.public_report_available == 'true' }}
+    needs: [api-tests, public-ui-tests, auth-ui-tests, auth-api-tests, report]
     permissions:
       pages: write
       id-token: write
