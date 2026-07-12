@@ -1,115 +1,54 @@
 # trade.mb.io Playwright tests
 
 [![Tests](https://github.com/zhukoff-av/trade.mb/actions/workflows/playwright.yml/badge.svg?branch=main&label=tests)](https://github.com/zhukoff-av/trade.mb/actions/workflows/playwright.yml)
-[![Maintainability](https://img.shields.io/codefactor/grade/github/zhukoff-av/trade.mb/main?label=maintainability)](https://www.codefactor.io/repository/github/zhukoff-av/trade.mb)
-[![Language](https://img.shields.io/github/languages/top/zhukoff-av/trade.mb?label=language)](https://github.com/zhukoff-av/trade.mb)
 
-Playwright end-to-end coverage for the signed-out public experience at [mb.io](https://mb.io).
-The project uses Bun, TypeScript, and Playwright with Chromium. It contains tests and supporting
-test framework code only.
+Playwright coverage for the signed-out public experience at [mb.io](https://mb.io), built with Bun and TypeScript. This repository contains test automation only.
 
-## Prerequisites
+## Run it
 
-- Bun 1.3.14
-- Chromium installed through Playwright
+Prerequisite: Bun 1.3.14. From a clean checkout, install dependencies, install Chromium, and run the full suite with one command:
 
 ```sh
-bun install
-bunx playwright install chromium
+bun install && bunx playwright install chromium && bun run test
 ```
 
-The default target is `https://mb.io`. To use another compatible environment, copy `.env.example`
-to `.env` and set `BASE_URL`.
+The default target is `https://mb.io`; set `BASE_URL` in `.env` to use a compatible environment. Useful focused commands: `bun run test:ui`, `bun run test:api`, and `bun run report`.
 
-Existing local configurations must also set `BASE_URL` to the public website; legacy API,
-authentication, and secondary public-URL variables are no longer read by this lean suite.
+Follow the repository's [Playwright testing guidelines](PLAYWRIGHT_TESTING_GUIDELINES.md) when contributing tests.
 
-## Commands
+## Evidence and scope
 
-```sh
-bun run test             # all configured Playwright test levels
-bun run test:ui          # all Chromium UI tests
-bun run test:api         # browserless API and network contract tests
-bun run test:headed      # UI tests in a headed browser
-bun run test:ui-mode     # Playwright UI mode
-bun run plan-coverage    # Plan ID and automation mapping contract
-bun run format:check     # Prettier verification
-bun run lint             # ESLint and Playwright rules
-bun run typecheck        # strict TypeScript check
-bun run report           # open the most recent HTML report
-```
+Every CI run executes quality gates plus separate API and UI jobs, then publishes a combined Playwright HTML report in the [workflow artifacts](https://github.com/zhukoff-av/trade.mb/actions/workflows/playwright.yml). It includes failures, traces on retry, and failure screenshots.
 
-Run the narrowest affected spec while developing:
+The UI suite currently runs Desktop Chrome and mobile Chrome emulation; browserless API contracts run separately. Cross-browser desktop runs are not configured, so no cross-browser execution evidence is claimed.
 
-```sh
-bunx playwright test tests/ui/web-ui/<scenario>.spec.ts --project=ui
-```
+## Design decisions and assumptions
 
-## Architecture
+- Plan IDs in `specs/` map each scenario to its test; `bun run plan-coverage` enforces that mapping.
+- Page objects and reusable components keep UI tests readable; API-tagged tests use Playwright request context without a browser.
+- Assertions cover stable public content and navigation, not live prices or authenticated trading flows.
+- The suite assumes the public site is available and its third-party destinations are reachable.
 
-```text
-specs/                  Plan-ID scenarios and expected behavior
-tests/ui/web-ui/        Plan-ID scenarios with UI and tagged API contracts
-src/components/         Reusable page regions such as the public header
-src/pages/              Focused Home, Explore, and Company page objects
-src/fixtures/           Test fixture composition
-src/data/               Stable expected navigation and content contracts
-src/utils/              Request-level link validation
-scripts/                Plan-to-automation contract enforcement
-```
+## Test plan
 
-Tests import `test` and `expect` from `src/fixtures/ui.ts`. Page objects expose business-relevant
-regions and actions; test data holds expected content and destination contracts. Live prices and
-other mutable market values are deliberately excluded from assertions.
+Prioritise signed-out navigation, links, responsive layouts, market and promotional content, app-store routing, company content, 404s, and gated destinations. Run API link/redirect contracts independently; run Chromium UI coverage at desktop and mobile breakpoints. Plan IDs and current coverage are maintained in [`specs/`](specs/).
 
-Tests tagged `@api` use only Playwright's request context. The `api` project selects those contracts
-without launching Chromium, while the `ui` project excludes them and exercises the rendered site.
+## Release readiness checklist
 
-## Coverage
+- [ ] `bun run plan-coverage`, `bun run format:check`, `bun run lint`, and `bun run typecheck` pass.
+- [ ] `bun run test:api` and `bun run test:ui` pass; review the merged CI report for failures or retries.
+- [ ] Confirm the target environment and external destinations are available.
+- [ ] Assess any changed public journey; add or update its Plan-ID scenario before release.
 
-The 11 Plan IDs cover:
+## Risk matrix
 
-- complete desktop and mobile navigation;
-- navigation destination and broken-link checks;
-- two desktop layout breakpoints and one mobile breakpoint;
-- home-page promotions and market groups;
-- Explore spot-market content;
-- iOS App Store and Android Google Play smart-link routing;
-- all required Why MultiBank Group content;
-- exact 404 handling and signed-out gated destinations.
+| Risk                                          | Level  | Control                                                                 |
+| --------------------------------------------- | ------ | ----------------------------------------------------------------------- |
+| Broken public navigation or third-party links | High   | UI and browserless link-contract tests                                  |
+| Responsive layout regression                  | Medium | Desktop and mobile viewport checks                                      |
+| Live market data causes flaky tests           | Medium | Assert stable structure/content, not mutable prices                     |
+| Authenticated financial flows are untested    | High   | Explicitly out of scope; require a separate authenticated test strategy |
 
-Every `*.spec.ts` file declares its source plan and Plan ID. `bun run plan-coverage` rejects missing,
-duplicate, stale, or incorrectly mapped IDs.
+## Task 2
 
-## CI and completion evidence
-
-GitHub Actions reports four independent required checks:
-
-```text
-install
-  └── quality-gates
-        ├── api-tests
-        └── ui-tests
-```
-
-- `install` verifies the frozen Bun lockfile and dependency graph.
-- `quality-gates` enforces Plan-ID coverage, Prettier, zero-warning lint, and TypeScript.
-- `api-tests` runs browserless navigation and app-store redirect contracts.
-- `ui-tests` installs Chromium and runs the complete browser suite.
-
-API and UI results are merged into one `playwright-html-report` artifact. The `Playwright report`
-job also adds a run-time summary with totals, outcome, failures, and duration to each Actions run.
-
-Work is complete only when these commands pass:
-
-```sh
-bun run plan-coverage
-bun run format:check
-bun run lint
-bun run typecheck
-bun run test:api
-bun run test:ui
-```
-
-Project-specific contribution standards are documented in
-[`PLAYWRIGHT_TESTING_GUIDELINES.md`](PLAYWRIGHT_TESTING_GUIDELINES.md).
+Written QA strategy responses, including risk-based coverage for a financial trading app, are in [Task 2 – QA Strategy & Thinking](TASK_2-QAStrategy%26Thinking.md).
