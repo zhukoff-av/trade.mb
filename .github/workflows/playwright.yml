@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🥟 Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -31,7 +31,7 @@ jobs:
           bun-version: ${{ env.BUN_VERSION }}
 
       - name: ♻️ Cache Bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
@@ -47,7 +47,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🥟 Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -55,7 +55,7 @@ jobs:
           bun-version: ${{ env.BUN_VERSION }}
 
       - name: ♻️ Cache Bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
@@ -83,7 +83,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🥟 Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -91,7 +91,7 @@ jobs:
           bun-version: ${{ env.BUN_VERSION }}
 
       - name: ♻️ Cache Bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
@@ -106,7 +106,7 @@ jobs:
 
       - name: 📎 Upload API blob report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-public-blob-api
           path: blob-report/
@@ -130,7 +130,7 @@ jobs:
             project: ui-webkit
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🥟 Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -138,7 +138,7 @@ jobs:
           bun-version: ${{ env.BUN_VERSION }}
 
       - name: ♻️ Cache Bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
@@ -146,7 +146,7 @@ jobs:
             ${{ runner.os }}-bun-
 
       - name: ♻️ Cache ${{ matrix.engine }}
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ matrix.engine }}-${{ hashFiles('bun.lock') }}
@@ -164,7 +164,7 @@ jobs:
 
       - name: 📎 Upload ${{ matrix.engine }} UI blob report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-public-blob-ui-${{ matrix.engine }}
           path: blob-report/
@@ -185,7 +185,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🥟 Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -193,7 +193,7 @@ jobs:
           bun-version: ${{ env.BUN_VERSION }}
 
       - name: ♻️ Cache Bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
@@ -201,7 +201,7 @@ jobs:
             ${{ runner.os }}-bun-
 
       - name: ♻️ Cache Chromium
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('bun.lock') }}
@@ -236,7 +236,7 @@ jobs:
 
       - name: 📎 Upload authenticated UI blob report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-private-blob-auth-ui
           path: blob-report/
@@ -249,7 +249,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🥟 Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -257,7 +257,7 @@ jobs:
           bun-version: ${{ env.BUN_VERSION }}
 
       - name: ♻️ Cache Bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
@@ -289,7 +289,7 @@ jobs:
 
       - name: 📎 Upload authenticated API blob report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-private-blob-auth-api
           path: blob-report/
@@ -306,7 +306,7 @@ jobs:
       public_report_available: ${{ steps.merge-reports.outputs.available }}
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🥟 Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -319,7 +319,7 @@ jobs:
       - name: 📥 Download public Playwright blob reports
         if: ${{ needs.api-tests.result == 'success' || needs.api-tests.result == 'failure' || needs.public-ui-tests.result == 'success' || needs.public-ui-tests.result == 'failure' }}
         continue-on-error: true
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: playwright-public-blob-*
           path: blob-reports
@@ -341,7 +341,7 @@ jobs:
       - name: 📎 Upload merged HTML report
         id: upload-report
         if: ${{ always() && steps.merge-reports.outputs.available == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-html-report
           path: playwright-report/
@@ -350,7 +350,7 @@ jobs:
 
       - name: 📎 Upload public report for GitHub Pages
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.api-tests.result == 'success' && needs.public-ui-tests.result == 'success' && needs.auth-ui-tests.result == 'success' && needs.auth-api-tests.result == 'success' && steps.merge-reports.outputs.available == 'true' }}
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: playwright-report/
 

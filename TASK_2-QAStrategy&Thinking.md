@@ -95,4 +95,3 @@ I would also worry about:
 Before public release, I would want monitoring, alerts, transaction reconciliation, a clear go/no-go checklist and people available to respond to incidents.
 
 If critical money flows are not reliable, I would recommend delaying the release or starting with a small controlled group of users.
-:::

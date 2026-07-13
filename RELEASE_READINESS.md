@@ -57,18 +57,18 @@ for the reviewer-facing Playwright suite.
 
 ## Release readiness checklist
 
-- [ ] All 18 Plan-ID scenarios remain correctly mapped.
-- [ ] Formatting, zero-warning lint, and typecheck pass.
-- [ ] `bun run test:review` passes from a credential-free checkout.
-- [ ] Complete public UI suite passes on Chromium, Firefox, and WebKit.
-- [ ] Browserless public API suite passes once.
-- [ ] Authenticated UI and API regression suites pass with valid state.
-- [ ] CI exposes separately labelled engine checks and artifacts.
-- [ ] Public report contains no authenticated results or sensitive data.
-- [ ] GitHub Pages deploys only from a fully successful `main` run.
-- [ ] The stable report URL resolves from the README.
-- [ ] PR title and new commits are descriptive and focused.
-- [ ] Final GitHub Actions run is green.
+- [x] All 28 Plan-ID scenarios remain correctly mapped.
+- [x] Formatting, zero-warning lint, and typecheck pass.
+- [x] `bun run test:review` passes from a credential-free checkout.
+- [x] Complete public UI suite passes on Chromium, Firefox, and WebKit.
+- [x] Browserless public API suite passes once.
+- [x] Authenticated UI and API regression suites pass with valid state.
+- [x] CI exposes separately labelled engine checks and artifacts.
+- [x] Public report contains no authenticated results or sensitive data.
+- [x] GitHub Pages deploys only from a fully successful `main` run.
+- [x] The stable report URL resolves from the README.
+- [x] PR title and new commits are descriptive and focused.
+- [x] Final GitHub Actions run is green.
 
 ## Risk matrix
 
