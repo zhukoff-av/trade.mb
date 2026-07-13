@@ -180,5 +180,9 @@ AUTH_STATE_PATH=.auth/user.json bun run test:api:auth
 AUTH_STATE_PATH=.auth/user.json bun run test:ui:auth
 ```
 
+## Task 2
+
+Read the [Task 2 – QA Strategy & Thinking](TASK_2-QAStrategy%26Thinking.md) responses.
+
 Project-specific contribution standards are documented in
 [`PLAYWRIGHT_TESTING_GUIDELINES.md`](PLAYWRIGHT_TESTING_GUIDELINES.md).
