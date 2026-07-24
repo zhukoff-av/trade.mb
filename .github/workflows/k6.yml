@@ -1,0 +1,60 @@
+name: k6
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: k6 load profile
+        type: choice
+        options:
+          - smoke
+          - baseline
+        default: smoke
+
+permissions:
+  contents: read
+
+concurrency:
+  group: k6-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  K6_VERSION: 2.1.0
+  K6_PROFILE: ${{ github.event.inputs.profile || 'smoke' }}
+
+jobs:
+  performance-smoke:
+    name: Market-data performance gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v5
+
+      - name: ⚡ Setup k6
+        uses: grafana/setup-k6-action@v1
+        with:
+          k6-version: ${{ env.K6_VERSION }}
+
+      - name: 🚦 Run k6 market-data profile
+        id: k6
+        run: k6 run -e PROFILE="$K6_PROFILE" --summary-export k6-summary.json k6/market-data.perf.ts
+
+      - name: 📝 Publish k6 summary
+        if: always()
+        env:
+          K6_RUN_RESULT: ${{ steps.k6.outcome }}
+        run: node scripts/github-k6-summary.js
+
+      - name: 📎 Upload k6 summary export
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: k6-summary
+          path: k6-summary.json
+          if-no-files-found: ignore
+          retention-days: 7

@@ -45,6 +45,8 @@ bun run test:api:auth    # authenticated browserless API contracts
 bun run test:ui:auth     # authenticated trading portal tests only
 bun run test:headed      # UI tests in a headed browser
 bun run test:ui-mode     # Playwright UI mode
+bun run perf:smoke       # 30-second k6 gate for public market-data APIs
+bun run perf:baseline    # 90-second low-rate k6 baseline profile
 bun run plan-coverage    # Plan ID and automation mapping contract
 bun run format:check     # Prettier verification
 bun run lint             # ESLint and Playwright rules
@@ -92,10 +94,34 @@ decodes it only on the ephemeral runner, validates its JSON shape, and runs auth
 tests. Rotate the secret whenever the session expires. Base64 is transport encoding; GitHub's
 encrypted secret store provides the protection.
 
+## Performance smoke with k6
+
+Grafana k6 adds a credential-free performance gate for the public market-data APIs that the
+trading portal consumes. The default `smoke` profile keeps a constant arrival rate of one request
+pair per second for 30 seconds and fails on error-rate, contract-check, or p95 latency threshold
+breaches. The targets are live production services, so every profile stays at a deliberately
+polite request rate and aborts as soon as the error-rate gate is breached: this is a latency and
+contract baseline, not a load test.
+
+Install the k6 binary once (`brew install k6` on macOS; see the
+[k6 installation docs](https://grafana.com/docs/k6/latest/set-up/install-k6/) for other
+platforms), then run:
+
+```sh
+bun run perf:smoke      # 30-second PR-gate profile
+bun run perf:baseline   # 90-second low-rate baseline
+```
+
+The independent `k6` GitHub Actions workflow runs the smoke profile on pull requests and `main`
+pushes, publishes a threshold and check summary to the job page, and uploads the raw summary
+export as a seven-day artifact. The `baseline` profile can be dispatched manually from the Actions
+tab. [`k6/README.md`](k6/README.md) explains the script anatomy and the k6 concepts it uses.
+
 ## Architecture
 
 ```text
 specs/                  Plan-ID scenarios and expected behavior
+k6/                     k6 performance profiles, contract checks, and thresholds
 tests/ui/web-ui/        Plan-ID scenarios with UI and tagged API contracts
 tests/ui/auth/          Authenticated market UI scenarios
 tests/api/auth/         Authenticated API contracts
@@ -159,6 +185,9 @@ install
 - `auth-ui-tests` restores protected storage state and runs only authenticated market tests.
 - `auth-api-tests` restores the same protected state and runs authenticated contracts without a
   browser.
+
+The independent `k6` workflow additionally gates every pull request with the 30-second performance
+smoke of the public market-data APIs and publishes its threshold results to the job summary.
 
 Credential-free API and public cross-browser results are merged into a seven-day
 `playwright-html-report` artifact. After every fully successful `main` run, the same public report is
