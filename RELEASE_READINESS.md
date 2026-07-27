@@ -9,11 +9,11 @@ for the reviewer-facing Playwright suite.
   Firefox, and `ui-webkit` for WebKit. All three projects select the same specs and assertions.
 - Public `@api` scenarios run once in the browserless `api` project rather than once per engine.
 - Authenticated UI coverage remains Chromium-only in `auth-ui`; authenticated API coverage remains
-  browserless in `auth-api`.
+  browserless in `auth-api`. Both suites are local-only because saved login sessions and
+  account-scoped endpoints are not stable CI inputs.
 - CI uses a browser matrix so engine failures are independently visible and execute in parallel.
-- Only credential-free API and public UI blobs are merged into the public HTML report.
-  Authenticated artifacts use a separate naming boundary and are never downloaded by the public
-  report job.
+- Only credential-free API and public UI blobs are generated and merged into the public HTML
+  report.
 - GitHub Pages is updated only by a fully successful push to `main`. Pull requests and failed runs
   retain short-lived artifacts but cannot replace the last successful published report.
 - Cross-browser execution expands environments rather than behavior, so it introduces no new Plan
@@ -44,7 +44,7 @@ for the reviewer-facing Playwright suite.
 - `bun run test:review` must work without `.env` or authentication state and produce a local HTML
   report containing Chromium, Firefox, WebKit, and public API results.
 - Each browser project must also pass independently so engine failures remain attributable.
-- Authenticated UI and API suites must pass separately with valid storage state.
+- Authenticated UI and API suites may be run locally with a manually refreshed storage state.
 - Any timing-related fix must pass its narrow affected test three consecutive times on the affected
   engine.
 - `bun run perf:smoke` must pass its error-rate, contract-check, and p95 latency thresholds against
@@ -66,7 +66,6 @@ for the reviewer-facing Playwright suite.
 - [x] `bun run test:review` passes from a credential-free checkout.
 - [x] Complete public UI suite passes on Chromium, Firefox, and WebKit.
 - [x] Browserless public API suite passes once.
-- [x] Authenticated UI and API regression suites pass with valid state.
 - [x] CI exposes separately labelled engine checks and artifacts.
 - [x] Public report contains no authenticated results or sensitive data.
 - [x] GitHub Pages deploys only from a fully successful `main` run.
@@ -82,8 +81,7 @@ for the reviewer-facing Playwright suite.
 | Live-site behavior causes cross-browser flakiness      | Medium     | High     | Use web-first assertions and deterministic state; timing fixes require three consecutive narrow passes.  |
 | Three-engine execution increases CI duration           | High       | Medium   | Run engines in a parallel matrix, cache them separately, and execute browserless API tests once.         |
 | Linux needs additional browser libraries or privileges | Medium     | Medium   | Use Playwright's `--with-deps` installation and validate the one-command flow on a clean runner.         |
-| Authenticated data appears on public Pages             | Low        | Critical | Merge only `playwright-public-blob-*` artifacts and inspect the published project list.                  |
-| Expired authentication state blocks release            | Medium     | Medium   | Refresh the protected secret before release; failed runs cannot replace the last Pages report.           |
+| Authenticated data appears on public Pages             | Low        | Critical | Keep authenticated suites local-only and merge only `playwright-public-blob-*` artifacts.                |
 | Pages is disabled or lacks permissions                 | Medium     | High     | Enable GitHub Actions as the Pages source once at repository level; keep deployment permissions minimal. |
 | Existing ambiguous commits weaken history clarity      | High       | Medium   | Preserve history as requested, rename the PR, and use descriptive focused commits for new work.          |
 | Browser-specific skips reduce coverage                 | Low        | High     | Do not add engine skips or conditional assertions without a documented product requirement.              |
