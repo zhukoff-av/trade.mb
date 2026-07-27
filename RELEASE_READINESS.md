@@ -47,6 +47,8 @@ for the reviewer-facing Playwright suite.
 - Authenticated UI and API suites must pass separately with valid storage state.
 - Any timing-related fix must pass its narrow affected test three consecutive times on the affected
   engine.
+- `bun run perf:smoke` must pass its error-rate, contract-check, and p95 latency thresholds against
+  the public market-data endpoints without credentials.
 
 ### CI and publication
 
@@ -54,6 +56,8 @@ for the reviewer-facing Playwright suite.
 - The merged public report must not contain authenticated projects or sensitive attachments.
 - A successful `main` run must deploy the report to `https://zhukoff-av.github.io/trade.mb/`.
 - Failed and non-`main` runs must not replace the published report.
+- The independent `k6` workflow must gate pull requests with the smoke profile and publish its
+  threshold summary and raw export artifact.
 
 ## Release readiness checklist
 
@@ -84,3 +88,4 @@ for the reviewer-facing Playwright suite.
 | Existing ambiguous commits weaken history clarity      | High       | Medium   | Preserve history as requested, rename the PR, and use descriptive focused commits for new work.          |
 | Browser-specific skips reduce coverage                 | Low        | High     | Do not add engine skips or conditional assertions without a documented product requirement.              |
 | Published evidence becomes stale                       | Medium     | Medium   | Deploy after every fully successful `main` run and retain the Actions workflow link.                     |
+| Live-site latency variance breaks performance gates    | Medium     | Medium   | Keep polite arrival rates with generous p95 gates, abort on error spikes, review the summary artifact.   |

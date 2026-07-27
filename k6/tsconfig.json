@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["k6"]
+  },
+  "include": ["./**/*.ts"]
+}
