@@ -86,13 +86,9 @@ Enter. Close the dedicated Chrome window when the state has been saved.
 
 `.auth/`, `playwright/.auth/`, and `*.auth.json` are ignored because storage state contains live
 session credentials. Never commit, share, log, or upload these files. Re-run `auth:setup` whenever
-the saved session expires. The setup filters the export to mb.io-owned cookies and origins; CI
-rejects state containing cookies for other domains.
-
-CI reads the base64-encoded storage state from the protected `AUTH_STATE_B64` GitHub Actions secret,
-decodes it only on the ephemeral runner, validates its JSON shape, and runs authenticated UI and API
-tests. Rotate the secret whenever the session expires. Base64 is transport encoding; GitHub's
-encrypted secret store provides the protection.
+the saved session expires. The setup filters the export to mb.io-owned cookies and origins.
+Authenticated UI and API suites are intentionally local-only because saved login sessions and
+account-scoped endpoints are not stable CI inputs.
 
 ## Performance smoke with k6
 
@@ -163,7 +159,7 @@ duplicate, stale, or incorrectly mapped IDs.
 
 ## CI and completion evidence
 
-GitHub Actions reports independent quality, API, authenticated, and browser-matrix checks:
+GitHub Actions reports independent quality, public API, and browser-matrix checks:
 
 ```text
 install
@@ -171,9 +167,7 @@ install
         ├── api-tests
         ├── ui-tests (chromium)
         ├── ui-tests (firefox)
-        ├── ui-tests (webkit)
-        ├── auth-ui-tests
-        └── auth-api-tests
+        └── ui-tests (webkit)
                     ↓
               public-report → GitHub Pages
 ```
@@ -182,18 +176,15 @@ install
 - `quality-gates` enforces Plan-ID coverage, Prettier, zero-warning lint, and TypeScript.
 - `api-tests` runs browserless navigation and app-store redirect contracts.
 - `ui-tests` runs the complete public UI suite in parallel on Chromium, Firefox, and WebKit.
-- `auth-ui-tests` restores protected storage state and runs only authenticated market tests.
-- `auth-api-tests` restores the same protected state and runs authenticated contracts without a
-  browser.
 
 The independent `k6` workflow additionally gates every pull request with the 30-second performance
 smoke of the public market-data APIs and publishes its threshold results to the job summary.
 
 Credential-free API and public cross-browser results are merged into a seven-day
 `playwright-html-report` artifact. After every fully successful `main` run, the same public report is
-published to [GitHub Pages](https://zhukoff-av.github.io/trade.mb/). Authenticated job outcomes are
-listed in the Actions summary, but their reports, traces, screenshots, cookies, and account data are
-excluded from the public report.
+published to [GitHub Pages](https://zhukoff-av.github.io/trade.mb/). Authenticated suites remain
+available for local runs with a manually refreshed storage state but do not execute or produce
+artifacts in CI.
 
 GitHub Pages must be enabled once in the repository settings with **GitHub Actions** selected as the
 publishing source. The workflow itself then deploys with only Pages write and OIDC permissions.
@@ -205,8 +196,6 @@ Work is complete only when these commands pass:
 
 ```sh
 bun run test:review
-AUTH_STATE_PATH=.auth/user.json bun run test:api:auth
-AUTH_STATE_PATH=.auth/user.json bun run test:ui:auth
 ```
 
 ## Task 2

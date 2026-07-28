@@ -10,8 +10,6 @@ if (!summaryPath) {
 const testJobs = [
   ['API tests', process.env.API_TEST_RESULT],
   ['Cross-browser UI tests', process.env.UI_TEST_RESULT],
-  ['Authenticated UI tests', process.env.AUTH_UI_TEST_RESULT],
-  ['Authenticated API tests', process.env.AUTH_API_TEST_RESULT],
 ];
 const testJobResults = testJobs
   .filter(([, result]) => result)
@@ -91,8 +89,6 @@ fs.appendFileSync(
     failedTestSection,
     `HTML report artifact: ${artifact}`,
     `GitHub Pages: ${publishedReport}`,
-    '',
-    'Authenticated job outcomes are listed above but excluded from the public HTML report.',
     '',
     '_Job summary generated at run-time._',
     '',
